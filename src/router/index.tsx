@@ -14,6 +14,7 @@ const BookingDetailPage = lazy(() => import('../features/public/BookingDetailPag
 
 // Portal pages
 const LoginPage = lazy(() => import('../features/portal/LoginPage').then(m => ({ default: m.LoginPage })))
+const AuthCallbackPage = lazy(() => import('../features/portal/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })))
 const PortalDashboard = lazy(() => import('../features/portal/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const PortalBookings = lazy(() => import('../features/portal/BookingsPage').then(m => ({ default: m.BookingsPage })))
 const PortalBookingDetail = lazy(() => import('../features/portal/BookingDetailPage').then(m => ({ default: m.BookingDetailPage })))
@@ -44,6 +45,7 @@ export function AppRouter() {
 
       {/* Login (no layout guard needed) */}
       <Route path="/portal/login" element={<Lazy><LoginPage /></Lazy>} />
+      <Route path="/auth/callback" element={<Lazy><AuthCallbackPage /></Lazy>} />
 
       {/* Photographer portal */}
       <Route element={<ProtectedRoute allowedRoles={['photographer', 'admin']} />}>
