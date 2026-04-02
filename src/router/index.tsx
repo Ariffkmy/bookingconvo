@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { PublicLayout } from '../components/layout/PublicLayout'
 import { PortalLayout } from '../components/layout/PortalLayout'
 import { AdminLayout } from '../components/layout/AdminLayout'
@@ -11,6 +11,11 @@ const PhotographerPage = lazy(() => import('../features/public/PhotographerPage'
 const BookPage = lazy(() => import('../features/public/BookPage').then(m => ({ default: m.BookPage })))
 const PaymentPage = lazy(() => import('../features/public/PaymentPage').then(m => ({ default: m.PaymentPage })))
 const BookingDetailPage = lazy(() => import('../features/public/BookingDetailPage').then(m => ({ default: m.BookingDetailPage })))
+
+// Landing + auth pages
+const LandingPage = lazy(() => import('../features/LandingPage').then(m => ({ default: m.LandingPage })))
+const SignInPage = lazy(() => import('../features/auth/SignInPage').then(m => ({ default: m.SignInPage })))
+const SignUpPage = lazy(() => import('../features/auth/SignUpPage').then(m => ({ default: m.SignUpPage })))
 
 // Portal pages
 const LoginPage = lazy(() => import('../features/portal/LoginPage').then(m => ({ default: m.LoginPage })))
@@ -42,7 +47,11 @@ export function AppRouter() {
         <Route path="/booking/:bookingCode/payment" element={<Lazy><PaymentPage /></Lazy>} />
       </Route>
 
-      {/* Login (no layout guard needed) */}
+      {/* Auth routes */}
+      <Route path="/signin" element={<Lazy><SignInPage /></Lazy>} />
+      <Route path="/signup" element={<Lazy><SignUpPage /></Lazy>} />
+
+      {/* Legacy login (kept for compatibility) */}
       <Route path="/portal/login" element={<Lazy><LoginPage /></Lazy>} />
 
       {/* Photographer portal */}
@@ -67,8 +76,8 @@ export function AppRouter() {
         </Route>
       </Route>
 
-      {/* Fallback */}
-      <Route path="/" element={<Navigate to="/portal/login" replace />} />
+      {/* Landing page */}
+      <Route path="/" element={<Lazy><LandingPage /></Lazy>} />
       <Route path="*" element={
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
           <h1 className="text-4xl font-bold text-gray-300 mb-2">404</h1>
