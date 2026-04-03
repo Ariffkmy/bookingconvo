@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
-  Camera, LayoutDashboard, CalendarDays, Package, Image,
+  LayoutDashboard, CalendarDays, Package, Image,
   Settings, Menu, X, LogOut, BookOpen
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
