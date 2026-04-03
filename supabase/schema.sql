@@ -246,13 +246,29 @@ alter table bookings enable row level security;
 alter table booking_status_history enable row level security;
 alter table gallery_images enable row level security;
 
+-- Helper: check admin role without triggering RLS recursion.
+-- Must be security definer so it runs as DB owner and bypasses RLS
+-- on the profiles table (avoids infinite recursion).
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$;
+
 -- Profiles: users see their own
 create policy "users read own profile" on profiles for select using (id = auth.uid());
 create policy "users update own profile" on profiles for update using (id = auth.uid());
 
--- Admins have full access to profiles
+-- Admins have full access to profiles (uses is_admin() to avoid recursion)
 create policy "admins full profiles" on profiles for all
-  using (exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin'));
+  using (is_admin());
 
 -- Photographers: public can read active
 create policy "public read active photographers" on photographers
@@ -264,7 +280,7 @@ create policy "photographer owner access" on photographers for all
 
 -- Admins: full photographer access
 create policy "admin full photographers" on photographers for all
-  using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+  using (is_admin());
 
 -- Packages: public read active
 create policy "public read active packages" on packages
@@ -276,7 +292,7 @@ create policy "photographer manages packages" on packages for all
 
 -- Admin: full packages
 create policy "admin full packages" on packages for all
-  using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+  using (is_admin());
 
 -- Availability: public read
 create policy "public read availability_rules" on availability_rules for select using (true);
@@ -304,7 +320,7 @@ create policy "public create bookings" on bookings for insert with check (true);
 
 -- Admin: full bookings
 create policy "admin full bookings" on bookings for all
-  using (exists (select 1 from profiles where id = auth.uid() and role = 'admin'));
+  using (is_admin());
 
 -- Booking history: photographer sees own
 create policy "photographer reads booking history" on booking_status_history for select
