@@ -162,7 +162,7 @@ export function PaymentPage() {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-500">Booking Code</span>
-            <span className="font-mono font-bold text-purple-700">{booking.booking_code}</span>
+            <span className="font-mono font-bold text-sky-700">{booking.booking_code}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Photographer</span>
@@ -183,7 +183,7 @@ export function PaymentPage() {
           {booking.payment_amount && (
             <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
               <span className="font-semibold text-gray-800">Amount to Pay</span>
-              <span className="font-bold text-purple-700 text-base">{formatCurrency(booking.payment_amount)}</span>
+              <span className="font-bold text-sky-700 text-base">{formatCurrency(booking.payment_amount)}</span>
             </div>
           )}
         </div>
@@ -232,11 +232,11 @@ export function PaymentPage() {
         {!selectedFile ? (
           <label
             htmlFor="receipt-upload"
-            className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-purple-300 rounded-xl bg-purple-50 cursor-pointer hover:bg-purple-100 transition-colors"
+            className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-sky-300 rounded-xl bg-sky-50 cursor-pointer hover:bg-sky-100 transition-colors"
           >
-            <Upload size={24} className="text-purple-400 mb-2" />
-            <p className="text-sm font-medium text-purple-700">Tap to upload receipt</p>
-            <p className="text-xs text-purple-400 mt-1">Photo or screenshot, max 10MB</p>
+            <Upload size={24} className="text-sky-400 mb-2" />
+            <p className="text-sm font-medium text-sky-700">Tap to upload receipt</p>
+            <p className="text-xs text-sky-400 mt-1">Photo or screenshot, max 10MB</p>
             <input
               id="receipt-upload"
               ref={fileInputRef}

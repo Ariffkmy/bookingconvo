@@ -64,7 +64,7 @@ export function BookingsPage() {
           placeholder="Search by name, email, code..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+          className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
         />
       </div>
 
@@ -76,8 +76,8 @@ export function BookingsPage() {
             onClick={() => setSearchParams(f.value ? { status: f.value } : {})}
             className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               statusFilter === f.value
-                ? 'bg-purple-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:border-purple-300'
+                ? 'bg-sky-600 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:border-sky-300'
             }`}
           >
             {f.label}
@@ -100,7 +100,7 @@ export function BookingsPage() {
           {(search || statusFilter) && (
             <button
               onClick={() => { setSearch(''); setSearchParams({}) }}
-              className="text-xs text-purple-600 mt-1 hover:underline"
+              className="text-xs text-sky-600 mt-1 hover:underline"
             >
               Clear filters
             </button>
@@ -123,7 +123,7 @@ function BookingCard({ booking }: { booking: Booking }) {
   return (
     <Link
       to={`/portal/bookings/${booking.id}`}
-      className="block bg-white rounded-2xl border border-gray-200 p-4 hover:border-purple-300 hover:shadow-sm transition-all active:scale-[0.99]"
+      className="block bg-white rounded-2xl border border-gray-200 p-4 hover:border-sky-300 hover:shadow-sm transition-all active:scale-[0.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -143,7 +143,7 @@ function BookingCard({ booking }: { booking: Booking }) {
             </span>
           </div>
           {pkg && (
-            <p className="text-xs text-purple-600 mt-1 font-medium">{pkg.name}</p>
+            <p className="text-xs text-sky-600 mt-1 font-medium">{pkg.name}</p>
           )}
         </div>
         <ChevronRight size={16} className="text-gray-400 shrink-0 mt-1" />

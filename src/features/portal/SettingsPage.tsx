@@ -110,17 +110,17 @@ export function SettingsPage() {
       </div>
 
       {/* Booking Link */}
-      <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-5">
-        <p className="text-xs font-semibold text-purple-700 mb-1">Your Booking Link</p>
+      <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 mb-5">
+        <p className="text-xs font-semibold text-sky-700 mb-1">Your Booking Link</p>
         <div className="flex items-center gap-2">
-          <p className="text-sm text-purple-900 font-mono truncate flex-1">{bookingUrl}</p>
+          <p className="text-sm text-sky-900 font-mono truncate flex-1">{bookingUrl}</p>
           <button
             onClick={copyBookingLink}
-            className="p-2 rounded-lg hover:bg-purple-200 text-purple-700 transition-colors"
+            className="p-2 rounded-lg hover:bg-sky-200 text-sky-700 transition-colors"
           >
             {copied ? <CheckCircle size={16} className="text-green-600" /> : <Copy size={16} />}
           </button>
-          <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-purple-200 text-purple-700">
+          <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-sky-200 text-sky-700">
             <ExternalLink size={16} />
           </a>
         </div>
@@ -281,7 +281,7 @@ function ProfilePhotoSection({ photographer, photographerId, qc }: { photographe
               : <div className="w-full h-full flex items-center justify-center text-gray-300 text-xl">📷</div>
             }
           </div>
-          <label className="absolute -bottom-1 -right-1 bg-purple-600 text-white rounded-full p-1 cursor-pointer hover:bg-purple-700 shadow">
+          <label className="absolute -bottom-1 -right-1 bg-sky-600 text-white rounded-full p-1 cursor-pointer hover:bg-sky-700 shadow">
             <Upload size={10} />
             <input type="file" accept="image/*" className="hidden" onChange={e => handleUpload(e, 'profile_photo')} />
           </label>
@@ -319,7 +319,7 @@ function DuitNowUpload({ photographer, photographerId, qc }: { photographer: Pho
       {photographer.duitnow_qr_url && (
         <img src={photographer.duitnow_qr_url} alt="DuitNow QR" className="w-24 h-24 object-contain border border-gray-200 rounded-xl bg-white p-1 mb-2" />
       )}
-      <label className="flex items-center gap-2 text-sm text-purple-600 cursor-pointer hover:text-purple-700">
+      <label className="flex items-center gap-2 text-sm text-sky-600 cursor-pointer hover:text-sky-700">
         <Upload size={14} />
         {photographer.duitnow_qr_url ? 'Replace QR Image' : 'Upload QR Image'}
         <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
@@ -356,7 +356,7 @@ function BookingSettingsForm({ photographer, photographerId, qc }: { photographe
               type="button"
               onClick={() => setLockDuration(mins)}
               className={`px-4 py-2 rounded-xl text-sm font-medium border-2 transition-all ${
-                lockDuration === mins ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-gray-200 text-gray-600'
+                lockDuration === mins ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-gray-200 text-gray-600'
               }`}
             >
               {mins}m

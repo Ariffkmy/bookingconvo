@@ -56,8 +56,8 @@ export function DashboardPage() {
         <StatCard
           label="Today's Sessions"
           value={todayBookings.length}
-          icon={<Camera size={18} className="text-purple-600" />}
-          bg="bg-purple-50"
+          icon={<Camera size={18} className="text-sky-600" />}
+          bg="bg-sky-50"
         />
         <StatCard
           label="Pending Receipts"
@@ -115,7 +115,7 @@ export function DashboardPage() {
       <div className="mb-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
-            <Calendar size={16} className="text-purple-500" />
+            <Calendar size={16} className="text-sky-500" />
             Today's Sessions
           </h2>
         </div>
@@ -140,7 +140,7 @@ export function DashboardPage() {
             <Clock size={16} className="text-blue-500" />
             Upcoming Bookings
           </h2>
-          <Link to="/portal/bookings" className="text-xs text-purple-600 flex items-center gap-1 hover:text-purple-700">
+          <Link to="/portal/bookings" className="text-xs text-sky-600 flex items-center gap-1 hover:text-sky-700">
             View all <ArrowRight size={12} />
           </Link>
         </div>
@@ -184,7 +184,7 @@ function BookingRow({ booking }: { booking: Booking }) {
   return (
     <Link
       to={`/portal/bookings/${booking.id}`}
-      className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 hover:border-purple-300 hover:shadow-sm transition-all"
+      className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 hover:border-sky-300 hover:shadow-sm transition-all"
     >
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{booking.customer_name}</p>

@@ -49,7 +49,7 @@ export function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 to-indigo-100 px-4">
         <div className="w-full max-w-sm text-center">
           <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <CheckCircle size={28} className="text-white" />
@@ -67,11 +67,11 @@ export function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 to-indigo-100 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link to="/">
-            <div className="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg hover:bg-purple-700 transition-colors">
+            <div className="w-14 h-14 bg-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg hover:bg-sky-700 transition-colors">
               <Camera size={28} className="text-white" />
             </div>
           </Link>
@@ -145,7 +145,7 @@ export function SignUpPage() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           Already have an account?{' '}
-          <Link to="/signin" className="text-purple-600 hover:text-purple-700 font-medium">
+          <Link to="/signin" className="text-sky-600 hover:text-sky-700 font-medium">
             Sign in
           </Link>
         </p>

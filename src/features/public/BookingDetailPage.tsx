@@ -97,7 +97,7 @@ export function BookingDetailPage() {
       desc: 'This booking has been cancelled.',
     },
     COMPLETED: {
-      icon: <CheckCircle size={20} className="text-purple-500" />,
+      icon: <CheckCircle size={20} className="text-sky-500" />,
       title: 'Session Completed!',
       desc: 'Thank you for choosing us for your graduation shoot!',
     },
@@ -124,7 +124,7 @@ export function BookingDetailPage() {
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
           <div>
             <p className="text-xs text-gray-400">Booking Code</p>
-            <p className="font-mono font-bold text-purple-700 text-sm">{booking.booking_code}</p>
+            <p className="font-mono font-bold text-sky-700 text-sm">{booking.booking_code}</p>
           </div>
           <BookingStatusBadge status={booking.status} />
         </div>
@@ -167,10 +167,10 @@ export function BookingDetailPage() {
         <div className="space-y-3">
           {photographer && (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center">
                 {photographer.profile_photo
                   ? <img src={photographer.profile_photo} className="w-full h-full rounded-full object-cover" alt="" />
-                  : <span className="text-xs font-bold text-purple-600">{photographer.display_name[0]}</span>
+                  : <span className="text-xs font-bold text-sky-600">{photographer.display_name[0]}</span>
                 }
               </div>
               <div>
@@ -237,7 +237,7 @@ export function BookingDetailPage() {
             {history.map((h, i) => (
               <div key={h.id} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className={`w-2.5 h-2.5 rounded-full mt-1 ${i === history.length - 1 ? 'bg-purple-500' : 'bg-gray-300'}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full mt-1 ${i === history.length - 1 ? 'bg-sky-500' : 'bg-gray-300'}`} />
                   {i < history.length - 1 && <div className="w-px flex-1 bg-gray-200 mt-1" />}
                 </div>
                 <div className="pb-3">

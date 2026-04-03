@@ -80,7 +80,7 @@ export function PhotographerPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
           </div>
         ) : (
-          <div className="h-48 sm:h-64 bg-gradient-to-br from-purple-600 to-indigo-700" />
+          <div className="h-48 sm:h-64 bg-gradient-to-br from-sky-600 to-indigo-700" />
         )}
 
         {/* Profile info overlay */}
@@ -90,15 +90,15 @@ export function PhotographerPage() {
               {photographer.profile_photo ? (
                 <img src={photographer.profile_photo} alt={photographer.display_name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-purple-100 flex items-center justify-center">
-                  <Camera size={28} className="text-purple-400" />
+                <div className="w-full h-full bg-sky-100 flex items-center justify-center">
+                  <Camera size={28} className="text-sky-400" />
                 </div>
               )}
             </div>
             <div className="pb-1 min-w-0">
               <h1 className="text-xl font-bold text-gray-900 leading-tight">{photographer.display_name}</h1>
               {photographer.school_name && (
-                <p className="text-sm text-purple-600 font-medium mt-0.5">{photographer.school_name}</p>
+                <p className="text-sm text-sky-600 font-medium mt-0.5">{photographer.school_name}</p>
               )}
             </div>
           </div>
@@ -115,13 +115,13 @@ export function PhotographerPage() {
             </span>
           )}
           {photographer.phone && (
-            <a href={`tel:${photographer.phone}`} className="flex items-center gap-1.5 hover:text-purple-600">
+            <a href={`tel:${photographer.phone}`} className="flex items-center gap-1.5 hover:text-sky-600">
               <Phone size={14} className="text-gray-400" />
               {photographer.phone}
             </a>
           )}
           {photographer.email && (
-            <a href={`mailto:${photographer.email}`} className="flex items-center gap-1.5 hover:text-purple-600">
+            <a href={`mailto:${photographer.email}`} className="flex items-center gap-1.5 hover:text-sky-600">
               <Mail size={14} className="text-gray-400" />
               {photographer.email}
             </a>
@@ -160,7 +160,7 @@ export function PhotographerPage() {
       {gallery.length > 0 && (
         <section className="mt-8 px-4">
           <h2 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <Camera size={16} className="text-purple-500" />
+            <Camera size={16} className="text-sky-500" />
             Portfolio
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -178,7 +178,7 @@ export function PhotographerPage() {
           {gallery.length > 8 && (
             <button
               onClick={() => setShowAllGallery(!showAllGallery)}
-              className="mt-3 w-full py-2 text-sm text-purple-600 font-medium flex items-center justify-center gap-1 hover:text-purple-700"
+              className="mt-3 w-full py-2 text-sm text-sky-600 font-medium flex items-center justify-center gap-1 hover:text-sky-700"
             >
               {showAllGallery ? 'Show Less' : `View All ${gallery.length} Photos`}
               <ChevronDown size={14} className={showAllGallery ? 'rotate-180' : ''} />
@@ -199,8 +199,8 @@ export function PhotographerPage() {
             { step: '5', title: 'Get Confirmed!', desc: 'Photographer reviews and confirms your booking.' },
           ].map(({ step, title, desc }) => (
             <div key={step} className="flex gap-3">
-              <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-purple-700">{step}</span>
+              <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-sky-700">{step}</span>
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">{title}</p>
@@ -247,7 +247,7 @@ export function PhotographerPage() {
 
 function PackageCard({ pkg, slug }: { pkg: Package; slug: string }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 hover:border-purple-300 hover:shadow-md transition-all">
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 hover:border-sky-300 hover:shadow-md transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 text-sm">{pkg.name}</h3>
@@ -267,7 +267,7 @@ function PackageCard({ pkg, slug }: { pkg: Package; slug: string }) {
           {pkg.inclusions && pkg.inclusions.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {pkg.inclusions.map((inc, i) => (
-                <span key={i} className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
+                <span key={i} className="inline-flex items-center gap-1 text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">
                   <CheckCircle size={10} />
                   {inc}
                 </span>
@@ -276,7 +276,7 @@ function PackageCard({ pkg, slug }: { pkg: Package; slug: string }) {
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="font-bold text-purple-700 text-lg">{formatCurrency(pkg.price)}</p>
+          <p className="font-bold text-sky-700 text-lg">{formatCurrency(pkg.price)}</p>
           <Link to={`/p/${slug}/book?package=${pkg.id}`}>
             <Button size="sm" className="mt-2">Book</Button>
           </Link>

@@ -35,7 +35,7 @@ export function Badge({ children, variant = 'gray', size = 'md', className }: Ge
     yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     red: 'bg-red-100 text-red-800 border-red-200',
     blue: 'bg-blue-100 text-blue-800 border-blue-200',
-    purple: 'bg-purple-100 text-purple-800 border-purple-200',
+    purple: 'bg-sky-100 text-sky-800 border-sky-200',
   }
 
   return (

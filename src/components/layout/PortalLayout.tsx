@@ -36,7 +36,7 @@ export function PortalLayout() {
           className={({ isActive }) => cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
             isActive
-              ? 'bg-purple-600 text-white shadow-sm'
+              ? 'bg-sky-600 text-white shadow-sm'
               : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
           )}
         >
@@ -53,12 +53,9 @@ export function PortalLayout() {
       <aside className="hidden md:flex flex-col w-56 bg-white border-r border-gray-200 fixed h-full z-20">
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-              <Camera size={16} className="text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-gray-900">GradSnap</p>
-              <p className="text-xs text-gray-500">Portal</p>
+            <img src="/logoconvo.png" alt="Logo" className="h-8 w-auto object-contain" />
+            <div className="border-l border-gray-200 pl-2 ml-1">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Portal</p>
             </div>
           </div>
         </div>
@@ -69,8 +66,8 @@ export function PortalLayout() {
 
         <div className="p-3 border-t border-gray-100">
           <div className="flex items-center gap-2 px-2 py-1.5 mb-1">
-            <div className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-xs font-semibold text-purple-700">
+            <div className="w-7 h-7 bg-sky-100 rounded-full flex items-center justify-center">
+              <span className="text-xs font-semibold text-sky-700">
                 {user?.email?.[0]?.toUpperCase() ?? 'P'}
               </span>
             </div>
@@ -93,10 +90,8 @@ export function PortalLayout() {
           <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white flex flex-col shadow-xl">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <Camera size={16} className="text-white" />
-                </div>
-                <span className="font-bold text-sm text-gray-900">GradSnap Portal</span>
+                <img src="/logoconvo.png" alt="Logo" className="h-8 w-auto object-contain" />
+                <span className="font-bold text-sm text-gray-900 ml-1">Portal</span>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-lg hover:bg-gray-100">
                 <X size={18} />
@@ -129,10 +124,8 @@ export function PortalLayout() {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-purple-600 rounded-md flex items-center justify-center">
-              <Camera size={14} className="text-white" />
-            </div>
-            <span className="font-semibold text-sm">GradSnap Portal</span>
+            <img src="/logoconvo.png" alt="Logo" className="h-7 w-auto object-contain" />
+            <span className="font-semibold text-sm ml-1">Portal</span>
           </div>
           <div className="w-8" />
         </header>

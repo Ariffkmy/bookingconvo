@@ -249,7 +249,7 @@ export function BookPage() {
           <div key={i} className="flex items-center gap-2">
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
               (i === 0 && step === 'slot') || (i === 1 && step === 'details')
-                ? 'bg-purple-600 text-white'
+                ? 'bg-sky-600 text-white'
                 : i < (step === 'details' ? 1 : 0)
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-200 text-gray-500'
@@ -345,7 +345,7 @@ function SlotStep({
               onClick={() => onPackageChange(pkg.id)}
               className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
                 selectedPackageId === pkg.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-sky-500 bg-sky-50'
                   : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
             >
@@ -362,9 +362,9 @@ function SlotStep({
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-purple-700">{formatCurrency(pkg.price)}</p>
+                  <p className="font-bold text-sky-700">{formatCurrency(pkg.price)}</p>
                   {selectedPackageId === pkg.id && (
-                    <CheckCircle size={16} className="text-purple-500 ml-auto mt-1" />
+                    <CheckCircle size={16} className="text-sky-500 ml-auto mt-1" />
                   )}
                 </div>
               </div>
@@ -427,9 +427,9 @@ function SlotStep({
                     disabled={!available || isPast}
                     className={`aspect-square flex items-center justify-center rounded-lg text-sm font-medium transition-all ${
                       isSelected
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-sky-600 text-white'
                         : available && !isPast
-                          ? 'hover:bg-purple-100 text-gray-900 cursor-pointer'
+                          ? 'hover:bg-sky-100 text-gray-900 cursor-pointer'
                           : 'text-gray-300 cursor-not-allowed'
                     }`}
                   >
@@ -466,7 +466,7 @@ function SlotStep({
                   type="button"
                   onClick={() => onSlotSelect(time)}
                   disabled={isLocking}
-                  className="py-2.5 px-2 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700 transition-all active:scale-95 disabled:opacity-50"
+                  className="py-2.5 px-2 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700 transition-all active:scale-95 disabled:opacity-50"
                 >
                   {formatTime(time)}
                 </button>
@@ -508,9 +508,9 @@ function DetailsStep({
       )}
 
       {/* Booking summary */}
-      <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4">
-        <h3 className="font-semibold text-purple-900 text-sm mb-2">Your Selection</h3>
-        <div className="space-y-1.5 text-sm text-purple-800">
+      <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4">
+        <h3 className="font-semibold text-sky-900 text-sm mb-2">Your Selection</h3>
+        <div className="space-y-1.5 text-sm text-sky-800">
           {selectedPackage && (
             <div className="flex justify-between">
               <span>Package</span>

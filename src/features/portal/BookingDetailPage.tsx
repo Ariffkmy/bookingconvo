@@ -154,7 +154,7 @@ export function BookingDetailPage() {
         </button>
         <div className="flex-1 min-w-0">
           <h1 className="font-bold text-gray-900 truncate">{booking.customer_name}</h1>
-          <p className="text-xs font-mono text-purple-600">{booking.booking_code}</p>
+          <p className="text-xs font-mono text-sky-600">{booking.booking_code}</p>
         </div>
         <BookingStatusBadge status={booking.status} />
       </div>
@@ -204,9 +204,9 @@ export function BookingDetailPage() {
 
       {/* Deliver photos */}
       {booking.status === 'COMPLETED' && (
-        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4">
-          <h3 className="text-sm font-semibold text-purple-900 mb-2">Deliver Photos</h3>
-          <p className="text-xs text-purple-700 mb-3">Enter the gallery link to deliver photos to the customer.</p>
+        <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 mb-4">
+          <h3 className="text-sm font-semibold text-sky-900 mb-2">Deliver Photos</h3>
+          <p className="text-xs text-sky-700 mb-3">Enter the gallery link to deliver photos to the customer.</p>
           <Button fullWidth onClick={() => { setGalleryUrlInput(booking.gallery_url || ''); setGalleryModal(true) }}>
             Deliver Gallery
           </Button>
@@ -240,8 +240,8 @@ export function BookingDetailPage() {
         <h3 className="text-sm font-semibold text-gray-700 mb-3">Customer</h3>
         <div className="space-y-2.5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-              <span className="text-xs font-bold text-purple-600">{booking.customer_name[0]}</span>
+            <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
+              <span className="text-xs font-bold text-sky-600">{booking.customer_name[0]}</span>
             </div>
             <p className="font-semibold text-sm text-gray-900">{booking.customer_name}</p>
           </div>
@@ -287,7 +287,7 @@ export function BookingDetailPage() {
           <h3 className="text-sm font-semibold text-gray-700">Internal Notes</h3>
           <button
             onClick={() => { setInternalNote(booking.notes || ''); setNoteModal(true) }}
-            className="text-xs text-purple-600 hover:text-purple-700"
+            className="text-xs text-sky-600 hover:text-sky-700"
           >
             Edit
           </button>
@@ -309,7 +309,7 @@ export function BookingDetailPage() {
             {history.map((h, i) => (
               <div key={h.id} className="flex gap-3">
                 <div className="flex flex-col items-center">
-                  <div className={`w-2.5 h-2.5 rounded-full mt-0.5 shrink-0 ${i === history.length - 1 ? 'bg-purple-500' : 'bg-gray-300'}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full mt-0.5 shrink-0 ${i === history.length - 1 ? 'bg-sky-500' : 'bg-gray-300'}`} />
                   {i < history.length - 1 && <div className="w-px h-full bg-gray-200 mt-1" />}
                 </div>
                 <div className="pb-3">
@@ -332,7 +332,7 @@ export function BookingDetailPage() {
               href={booking.receipt_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 mt-3 text-sm text-purple-600 hover:text-purple-700"
+              className="flex items-center justify-center gap-2 mt-3 text-sm text-sky-600 hover:text-sky-700"
             >
               <ExternalLink size={14} /> Open in new tab
             </a>
@@ -391,7 +391,7 @@ export function BookingDetailPage() {
           placeholder="https://drive.google.com/..."
           value={galleryUrlInput}
           onChange={e => setGalleryUrlInput(e.target.value)}
-          className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3"
+          className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 mb-3"
         />
         <Button
           fullWidth

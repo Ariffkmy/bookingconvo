@@ -30,7 +30,7 @@ export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
   CONFIRMED: 'bg-green-100 text-green-800 border-green-200',
   RESCHEDULED: 'bg-orange-100 text-orange-800 border-orange-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
-  COMPLETED: 'bg-purple-100 text-purple-800 border-purple-200',
+  COMPLETED: 'bg-sky-100 text-sky-800 border-sky-200',
   DELIVERED: 'bg-teal-100 text-teal-800 border-teal-200',
 }
 

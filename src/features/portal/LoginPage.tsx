@@ -40,11 +40,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 to-indigo-100 px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <div className="w-14 h-14 bg-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
             <Camera size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">GradSnap</h1>
@@ -64,7 +64,7 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" style={{top: '55%'}} />
+              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" style={{ top: '55%' }} />
               <Input
                 type="email"
                 label="Email"
@@ -76,7 +76,7 @@ export function LoginPage() {
               />
             </div>
             <div className="relative">
-              <Lock size={16} className="absolute left-3.5 text-gray-400 pointer-events-none" style={{top: '62%'}} />
+              <Lock size={16} className="absolute left-3.5 text-gray-400 pointer-events-none" style={{ top: '62%' }} />
               <Input
                 type="password"
                 label="Password"

@@ -62,7 +62,7 @@ export function AdminDashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard icon={<Users size={18} className="text-indigo-600" />} label="Photographers" value={photographers.length} bg="bg-indigo-50" />
-        <StatCard icon={<BookOpen size={18} className="text-purple-600" />} label="Total Bookings" value={bookings.length} bg="bg-purple-50" />
+        <StatCard icon={<BookOpen size={18} className="text-sky-600" />} label="Total Bookings" value={bookings.length} bg="bg-sky-50" />
         <StatCard icon={<AlertCircle size={18} className="text-amber-500" />} label="Pending Receipts" value={pendingVerification} bg="bg-amber-50" />
         <StatCard icon={<TrendingUp size={18} className="text-green-600" />} label="This Month Revenue" value={formatCurrency(monthRevenue)} bg="bg-green-50" isText />
       </div>

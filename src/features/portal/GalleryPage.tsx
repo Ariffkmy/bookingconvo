@@ -135,7 +135,7 @@ export function GalleryPage() {
 
       {images.length === 0 ? (
         <div
-          className="text-center py-16 border-2 border-dashed border-gray-300 rounded-2xl bg-white cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all"
+          className="text-center py-16 border-2 border-dashed border-gray-300 rounded-2xl bg-white cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-all"
           onClick={() => fileInputRef.current?.click()}
         >
           <ImageIcon size={40} className="text-gray-300 mx-auto mb-3" />
@@ -177,7 +177,7 @@ export function GalleryPage() {
           ))}
           {/* Upload more tile */}
           <div
-            className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all"
+            className="aspect-square rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-all"
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload size={20} className="text-gray-400 mb-1" />

@@ -152,7 +152,7 @@ export function AvailabilityPage() {
                     updates: { is_active: !isActive }
                   })}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    isActive ? 'bg-purple-600' : 'bg-gray-200'
+                    isActive ? 'bg-sky-600' : 'bg-gray-200'
                   }`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
@@ -165,14 +165,14 @@ export function AvailabilityPage() {
                       type="time"
                       value={rule.start_time}
                       onChange={e => updateRuleMutation.mutate({ dayOfWeek: dow, updates: { start_time: e.target.value } })}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-400"
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-sky-400"
                     />
                     <span className="text-xs text-gray-400">—</span>
                     <input
                       type="time"
                       value={rule.end_time}
                       onChange={e => updateRuleMutation.mutate({ dayOfWeek: dow, updates: { end_time: e.target.value } })}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-purple-400"
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-sky-400"
                     />
                   </div>
                 )}
@@ -319,7 +319,7 @@ export function AvailabilityPage() {
                 type="time"
                 value={overrideStart}
                 onChange={e => setOverrideStart(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
             <div className="flex-1">
@@ -328,7 +328,7 @@ export function AvailabilityPage() {
                 type="time"
                 value={overrideEnd}
                 onChange={e => setOverrideEnd(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
           </div>

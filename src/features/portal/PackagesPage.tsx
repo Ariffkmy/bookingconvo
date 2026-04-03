@@ -110,8 +110,8 @@ export function PackagesPage() {
 
       {packages.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-          <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Plus size={20} className="text-purple-500" />
+          <div className="w-12 h-12 bg-sky-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Plus size={20} className="text-sky-500" />
           </div>
           <p className="font-medium text-gray-800 mb-1">No packages yet</p>
           <p className="text-sm text-gray-400 mb-4">Add your photography packages to attract customers.</p>
@@ -187,7 +187,7 @@ function PackageCard({ pkg, onEdit, onDelete }: { pkg: Package; onEdit: () => vo
           {pkg.inclusions && pkg.inclusions.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {pkg.inclusions.map((inc, i) => (
-                <span key={i} className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span key={i} className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <CheckCircle size={9} /> {inc}
                 </span>
               ))}
@@ -195,7 +195,7 @@ function PackageCard({ pkg, onEdit, onDelete }: { pkg: Package; onEdit: () => vo
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="font-bold text-purple-700 text-base">{formatCurrency(pkg.price)}</p>
+          <p className="font-bold text-sky-700 text-base">{formatCurrency(pkg.price)}</p>
           <div className="flex gap-1 mt-2 justify-end">
             <button onClick={onEdit} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700">
               <Edit2 size={14} />
@@ -271,7 +271,7 @@ function PackageForm({
             step="0.01"
             min="0"
             placeholder="150.00"
-            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             {...register('price', { valueAsNumber: true })}
           />
           {errors.price && <p className="mt-1 text-xs text-red-600">{errors.price.message}</p>}
@@ -282,7 +282,7 @@ function PackageForm({
             type="number"
             min="15"
             step="15"
-            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             {...register('duration_mins', { valueAsNumber: true })}
           />
         </div>
@@ -294,7 +294,7 @@ function PackageForm({
           type="number"
           min="1"
           max="20"
-          className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           {...register('max_pax', { valueAsNumber: true })}
         />
       </div>
@@ -309,16 +309,16 @@ function PackageForm({
             onChange={e => setNewInclusion(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addInclusion())}
             placeholder="e.g. 10 edited photos"
-            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
           <Button type="button" size="sm" variant="outline" onClick={addInclusion}>Add</Button>
         </div>
         {inclusions.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {inclusions.map((inc, i) => (
-              <span key={i} className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2.5 py-1 rounded-full">
+              <span key={i} className="flex items-center gap-1 text-xs bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full">
                 {inc}
-                <button type="button" onClick={() => removeInclusion(i)} className="text-purple-400 hover:text-purple-700">
+                <button type="button" onClick={() => removeInclusion(i)} className="text-sky-400 hover:text-sky-700">
                   <X size={10} />
                 </button>
               </span>
@@ -333,7 +333,7 @@ function PackageForm({
         <button
           type="button"
           onClick={() => setValue('is_active', !isActive)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isActive ? 'bg-purple-600' : 'bg-gray-200'}`}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isActive ? 'bg-sky-600' : 'bg-gray-200'}`}
         >
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${isActive ? 'translate-x-6' : 'translate-x-1'}`} />
         </button>

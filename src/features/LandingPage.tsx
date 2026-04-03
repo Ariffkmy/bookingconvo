@@ -1,50 +1,104 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Camera, Calendar, CheckCircle, Star } from 'lucide-react'
+import { Camera, CheckCircle, ChevronDown, ChevronUp, UserPlus, Settings, Share2, Inbox, Star, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/Button'
 
 export function LandingPage() {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isYearly, setIsYearly] = useState(false);
+
+  const steps = [
+    { title: "Sign up and register", icon: UserPlus },
+    { title: "Configure your setting", icon: Settings },
+    { title: "Blast your booking link", icon: Share2 },
+    { title: "Receive booking", icon: Inbox },
+    { title: "Attend the convo photoshoot session", icon: Camera },
+    { title: "Done", icon: CheckCircle }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((c) => (c + 1) % steps.length);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [steps.length]);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      q: "How do I get started with GradSnap?",
+      a: "Getting started is easy! Create a free account, set up your profile and packages, configure your calendar availability, and you're ready to share your personalized booking link with clients."
+    },
+    {
+      q: "Can I customize my booking page?",
+      a: "Yes, you can customize your photographer profile with your portfolio, custom avatar, and descriptive text. You can also define unlimited tailored service packages at your own price points."
+    },
+    {
+      q: "Is the Google Calendar sync automatic?",
+      a: "Absolutely. Once you connect your Google Calendar, newly received bookings instantly block out the respective timeslots, preventing double bookings automatically."
+    },
+    {
+      q: "Do clients pay directly through the app?",
+      a: "Clients submit their booking and upload their receipt directly into the system. You verify the status and process payments according to your standard operating procedures, keeping your admin records accurate."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Nav */}
-      <header className="px-6 py-4 flex items-center justify-between border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-purple-600 rounded-xl flex items-center justify-center">
-            <Camera size={18} className="text-white" />
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <header className="flex items-center justify-between w-full max-w-4xl px-4 py-3 bg-white/70 backdrop-blur-xl border border-gray-200/60 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] pointer-events-auto transition-all">
+          <div className="flex items-center gap-2 pl-2">
+            <Link to="/">
+              <img src="/logoconvo.png" alt="Logo" className="h-6 w-auto object-contain" />
+            </Link>
           </div>
-          <span className="text-lg font-bold text-gray-900">GradSnap</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link to="/signin">
-            <Button variant="outline" size="sm">Sign In</Button>
-          </Link>
-          <Link to="/signup">
-            <Button variant="primary" size="sm">Sign Up</Button>
-          </Link>
-        </div>
-      </header>
+          <nav className="hidden md:flex items-center justify-center gap-8 ml-4">
+            <a href="#how-it-works" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">How it works</a>
+            <a href="#pricing" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Pricing</a>
+            <a href="#faq" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">FAQ</a>
+            <Link to="/manual" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">User Manual</Link>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link to="/signin">
+              <Button variant="outline" size="sm" className="rounded-full shadow-sm text-sm px-4">Sign In</Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="primary" size="sm" className="rounded-full shadow-sm text-sm px-5 hover:shadow-md transition-shadow">Sign Up</Button>
+            </Link>
+          </div>
+        </header>
+      </div>
 
       {/* Hero */}
       <main className="flex-1">
-        <section className="bg-gradient-to-br from-purple-50 to-indigo-100 px-6 py-20 text-center">
-          <div className="max-w-2xl mx-auto">
-            <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Camera size={32} className="text-white" />
+        <section className="bg-white px-6 pt-32 pb-16 sm:pt-40 sm:pb-24 border-b border-gray-100 overflow-hidden relative">
+          {/* Grid Background */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+          <div className="max-w-4xl mx-auto flex flex-col items-center text-center relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 text-sky-600 text-sm font-semibold mb-8 border border-sky-100">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+              </span>
+              Now beautifully captured
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-              Your Graduation,<br />Beautifully Captured
+            <h1 className="text-5xl sm:text-7xl font-bold text-[#1A202C] mb-6 leading-[1.1] tracking-tight">
+              Manage your <span className="text-[#0ea5e9]">graduation</span> bookings with ease.
             </h1>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            <p className="text-xl text-gray-500 mb-10 leading-relaxed max-w-2xl mx-auto">
               GradSnap connects you with talented graduation photographers.
               Book your session, manage your schedule, and deliver stunning memories.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/signup">
-                <Button size="lg" className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
+              <Link to="/signup" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-sm">
                   Get Started — It's Free
                 </Button>
               </Link>
-              <Link to="/signin">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <Link to="/signin" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base">
                   Sign In
                 </Button>
               </Link>
@@ -52,47 +106,191 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* Features */}
-        <section className="px-6 py-16 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">Everything you need to manage bookings</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Calendar size={22} className="text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Smart Scheduling</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Set your availability, manage timeslots, and let clients book with ease.
-              </p>
+        {/* Social Proof */}
+        <section className="border-b border-gray-100 bg-sky-50/40 py-12 relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-200 to-transparent"></div>
+          <div className="max-w-5xl mx-auto px-6 text-center">
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <Sparkles size={16} className="text-sky-500" />
+              <p className="text-sm font-bold text-sky-600 tracking-wider uppercase">Used by graduates across Malaysia</p>
+              <Sparkles size={16} className="text-sky-500" />
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle size={22} className="text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Booking Management</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Review, confirm, and track every booking from a single dashboard.
-              </p>
+            <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+              <span className="text-2xl font-black text-gray-800 font-serif">UiTM Snaps</span>
+              <span className="text-2xl font-bold text-gray-800 tracking-tighter">UMStudio</span>
+              <span className="text-2xl font-extrabold text-[#111] italic pr-2">UKM Lensa</span>
+              <span className="text-2xl font-bold text-gray-800">UPM<span className="font-light">Clicks</span></span>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Star size={22} className="text-purple-600" />
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section id="how-it-works" className="px-6 py-24 bg-white border-t border-gray-100 scroll-mt-20">
+          <div className="max-w-5xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">How it works</h2>
+            <p className="text-lg text-gray-500 mb-16">Your seamless workflow from signup to delivery.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
+              {steps.map((step, idx) => {
+                const isActive = activeStep === idx;
+                const Icon = step.icon;
+                return (
+                  <div
+                    key={idx}
+                    className={`p-6 rounded-2xl border transition-all duration-500 ease-in-out text-left ${isActive
+                      ? 'border-[#0ea5e9] bg-sky-50 shadow-md scale-105 z-10'
+                      : 'border-gray-100 bg-white scale-100 opacity-70'
+                      }`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-500 ${isActive ? 'bg-[#0ea5e9] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                      <Icon size={24} />
+                    </div>
+                    <div className="text-sm font-bold text-gray-400 mb-1">Step {idx + 1}</div>
+                    <h3 className={`font-bold text-lg transition-colors duration-500 ${isActive ? 'text-[#0ea5e9]' : 'text-[#1A202C]'}`}>
+                      {step.title}
+                    </h3>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="px-6 py-24 bg-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          <div className="max-w-6xl mx-auto text-center relative z-10">
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Loved by Photographers</h2>
+            <p className="text-lg text-gray-500 mb-16">See what professionals are saying about GradSnap.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+              {[
+                { name: "Ahmad Danish", role: "Convocation Specialist", quote: "GradSnap completely removed the headache of double bookings. The Google Calendar sync is flawless.", rating: 5 },
+                { name: "Sarah Lee", role: "Freelance Photographer", quote: "My clients love how professional the booking link looks. I've seen a 40% increase in paid bookings since switching.", rating: 5 },
+                { name: "Faizal Tahir", role: "Studio Owner", quote: "The receipt generation and admin portal saves me hours of manual tracking every week. It's a game changer.", rating: 5 }
+              ].map((t, idx) => (
+                <div key={idx} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 transition-transform duration-300">
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(t.rating)].map((_, i) => <Star key={i} size={18} className="text-yellow-400 fill-yellow-400" />)}
+                  </div>
+                  <p className="text-gray-600 mb-8 italic leading-relaxed">"{t.quote}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-gradient-to-br from-sky-100 to-indigo-50 rounded-full flex items-center justify-center font-bold text-sky-700 shadow-sm border border-sky-100">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm">{t.name}</p>
+                      <p className="text-xs text-sky-600 font-medium">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="px-6 py-20 bg-[#F9FAFB] scroll-mt-20">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Simple, transparent pricing</h2>
+            <p className="text-gray-500 mb-10">Everything you need to run your photography business.</p>
+
+            {/* Toggle Switch */}
+            <div className="flex justify-center items-center gap-3 mb-10">
+              <span className={`text-sm font-semibold cursor-pointer transition-colors ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`} onClick={() => setIsYearly(false)}>Monthly</span>
+              <button
+                onClick={() => setIsYearly(!isYearly)}
+                className={`w-14 h-8 rounded-full p-1 relative transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:ring-offset-2 ${isYearly ? 'bg-[#0ea5e9]' : 'bg-gray-200'}`}
+                aria-label="Toggle billing period"
+              >
+                <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isYearly ? 'translate-x-6' : 'translate-x-0'}`}></div>
+              </button>
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsYearly(true)}>
+                <span className={`text-sm font-semibold transition-colors ${isYearly ? 'text-gray-900' : 'text-gray-500'}`}>Yearly</span>
+                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold shrink-0 animate-pulse">Save 76%</span>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Portfolio Gallery</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Showcase your work and attract more clients with a stunning gallery.
-              </p>
+            </div>
+
+            <div className="max-w-md mx-auto bg-white rounded-2xl border-[1.5px] border-[#0ea5e9] shadow-card overflow-hidden">
+              <div className="p-8 text-center border-b border-gray-100">
+                <h3 className="text-xl font-bold text-[#1A202C] mb-2 lg:mt-2">Pro Package</h3>
+                <div className="flex justify-center items-baseline gap-1 mb-4 pt-4">
+                  <span className="text-5xl font-extrabold text-[#1A202C] tracking-tight transition-all duration-300">
+                    RM{isYearly ? '250' : '89'}
+                  </span>
+                  <span className="text-gray-500 font-medium">/ {isYearly ? 'year' : 'month'}</span>
+                </div>
+                <p className="text-sm text-gray-500">Perfect for professional graduation photographers.</p>
+              </div>
+              <div className="p-8 bg-white text-left">
+                <ul className="space-y-4 mb-10">
+                  {[
+                    'Public booking link',
+                    'Google Calendar sync',
+                    'Email notification',
+                    'Receipt generation',
+                    'Admin portal to manage booking'
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3 text-gray-700">
+                      <CheckCircle size={18} className="text-[#0ea5e9] shrink-0" />
+                      <span className="font-medium text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/signup" className="block w-full">
+                  <Button size="lg" className="w-full h-12 shadow-sm font-semibold">
+                    Get Started Now
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="px-6 py-24 bg-white border-t border-gray-100 scroll-mt-20">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-12 text-center">Frequently asked questions</h2>
+            <div className="space-y-4 text-left">
+              {faqs.map((faq, index) => {
+                const isOpen = openFaq === index;
+                return (
+                  <div key={index} className="border-b border-gray-100 last:border-0 pb-4">
+                    <button
+                      className="w-full flex justify-between items-center text-left py-4 focus:outline-none group"
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                    >
+                      <h3 className="text-lg font-bold text-[#1A202C] group-hover:text-[#0ea5e9] transition-colors">
+                        {faq.q}
+                      </h3>
+                      <span className="text-[#0ea5e9] ml-4 shrink-0 transition-transform duration-300">
+                        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      </span>
+                    </button>
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
+                        }`}
+                    >
+                      <p className="text-gray-500 leading-relaxed pr-8">{faq.a}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="bg-purple-600 px-6 py-14 text-center">
-          <div className="max-w-xl mx-auto">
-            <h2 className="text-2xl font-bold text-white mb-3">Ready to grow your photography business?</h2>
-            <p className="text-purple-200 mb-7 text-sm">Join photographers already using GradSnap to manage their graduation bookings.</p>
-            <Link to="/signup">
-              <Button variant="secondary" size="lg">
+        <section className="px-6 py-24 bg-white relative">
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-sky-500 via-[#0ea5e9] to-indigo-600 rounded-[3rem] p-12 md:p-20 text-center shadow-2xl relative overflow-hidden group">
+            {/* Decorative background circle */}
+            <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+            <div className="absolute bottom-0 left-0 -m-20 w-80 h-80 bg-sky-300 opacity-20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 relative z-10 leading-tight tracking-tight">Ready to boost your<br /> graduation bookings?</h2>
+            <p className="text-sky-100 mb-10 text-lg max-w-xl mx-auto relative z-10 leading-relaxed">Join top independent photographers already using GradSnap to seamlessly manage their convo photoshoots and wow their clients.</p>
+            <Link to="/signup" className="relative z-10 inline-block">
+              <Button variant="secondary" size="lg" className="h-14 px-10 text-lg rounded-2xl shadow-xl hover:scale-105 transition-transform duration-300 border-none bg-white text-sky-600 hover:bg-sky-50 font-bold">
                 Create Your Free Account
               </Button>
             </Link>

@@ -16,6 +16,7 @@ const BookingDetailPage = lazy(() => import('../features/public/BookingDetailPag
 const LandingPage = lazy(() => import('../features/LandingPage').then(m => ({ default: m.LandingPage })))
 const SignInPage = lazy(() => import('../features/auth/SignInPage').then(m => ({ default: m.SignInPage })))
 const SignUpPage = lazy(() => import('../features/auth/SignUpPage').then(m => ({ default: m.SignUpPage })))
+const UserManualPage = lazy(() => import('../features/UserManualPage').then(m => ({ default: m.UserManualPage })))
 
 // Portal pages
 const LoginPage = lazy(() => import('../features/portal/LoginPage').then(m => ({ default: m.LoginPage })))
@@ -80,11 +81,12 @@ export function AppRouter() {
 
       {/* Landing page */}
       <Route path="/" element={<Lazy><LandingPage /></Lazy>} />
+      <Route path="/manual" element={<Lazy><UserManualPage /></Lazy>} />
       <Route path="*" element={
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
           <h1 className="text-4xl font-bold text-gray-300 mb-2">404</h1>
           <p className="text-gray-500 mb-4">Page not found</p>
-          <a href="/" className="text-purple-600 hover:text-purple-700 text-sm font-medium">Go Home</a>
+          <a href="/" className="text-sky-600 hover:text-sky-700 text-sm font-medium">Go Home</a>
         </div>
       } />
     </Routes>
