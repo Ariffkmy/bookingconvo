@@ -40,33 +40,38 @@ export function useAuth() {
   }, [])
 
   async function fetchProfile(user: User, session: Session) {
+    // Determine role: try profiles table first, fall back to JWT user metadata
+    let role: UserRole | null = null
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single()
-
-      let photographerId: string | null = null
-      if (profile?.role === 'photographer') {
-        const { data: photographer } = await supabase
-          .from('photographers')
-          .select('id')
-          .eq('user_id', user.id)
-          .single()
-        photographerId = photographer?.id ?? null
+        .maybeSingle()
+      if (!error && profile?.role) {
+        role = profile.role
       }
-
-      setState({
-        user,
-        session,
-        role: profile?.role ?? null,
-        photographerId,
-        loading: false,
-      })
     } catch {
-      setState({ user, session, role: null, photographerId: null, loading: false })
+      // profiles query failed — fall through to metadata fallback
     }
+
+    // Fallback: read role from user metadata set at signup
+    if (!role) {
+      const metaRole = user.user_metadata?.role as UserRole | undefined
+      role = metaRole ?? 'photographer'
+    }
+
+    let photographerId: string | null = null
+    if (role === 'photographer') {
+      const { data: photographer } = await supabase
+        .from('photographers')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      photographerId = photographer?.id ?? null
+    }
+
+    setState({ user, session, role, photographerId, loading: false })
   }
 
   async function signIn(email: string, password: string) {
@@ -84,6 +89,18 @@ export function useAuth() {
       },
     })
     if (error) throw error
+
+    // Ensure a photographers row exists (DB trigger handles this too, but belt-and-suspenders)
+    if (data.user) {
+      const slug = 'studio-' + data.user.id.replace(/-/g, '').slice(0, 8)
+      await supabase.from('photographers').insert({
+        user_id: data.user.id,
+        slug,
+        display_name: fullName || 'My Studio',
+        is_active: true,
+      }).select().maybeSingle() // ignore conflict if trigger already created it
+    }
+
     return data
   }
 

@@ -3,13 +3,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Upload, Trash2, Star, AlertCircle, Image as ImageIcon } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
+import { compressImage } from '../../lib/utils'
 import { type GalleryImage } from '../../types'
 import { Button } from '../../components/ui/Button'
 import { ConfirmModal } from '../../components/ui/Modal'
 import { SectionLoader } from '../../components/ui/Spinner'
 
 export function GalleryPage() {
-  const { photographerId } = useAuth()
+  const { photographerId, user } = useAuth()
   const qc = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -70,17 +71,25 @@ export function GalleryPage() {
 
     for (const file of files) {
       try {
-        if (file.size > 10 * 1024 * 1024) {
-          setUploadError(`${file.name} is too large (max 10MB)`)
+        if (file.size > 30 * 1024 * 1024) {
+          setUploadError(`${file.name} is too large (max 30MB original)`)
           continue
         }
 
-        const ext = file.name.split('.').pop()
-        const path = `${photographerId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        // Compress: max 1920px, WebP @ 82% quality
+        const compressed = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 0.82,
+          format: 'webp',
+        })
+
+        const folder = user?.id ?? photographerId
+        const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`
 
         const { error: uploadErr } = await supabase.storage
           .from('gallery')
-          .upload(path, file)
+          .upload(path, compressed, { contentType: 'image/webp' })
         if (uploadErr) throw uploadErr
 
         const { data: urlData } = supabase.storage.from('gallery').getPublicUrl(path)
@@ -93,7 +102,8 @@ export function GalleryPage() {
           is_cover: images.length === 0,
         })
       } catch (err) {
-        setUploadError(`Failed to upload ${file.name}`)
+        const msg = err instanceof Error ? err.message : String(err)
+        setUploadError(`Failed to upload ${file.name}: ${msg}`)
       }
     }
 

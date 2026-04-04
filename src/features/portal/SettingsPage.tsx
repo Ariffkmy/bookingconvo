@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Save, Upload, ExternalLink, Copy, CheckCircle } from 'lucide-react'
+import { Save, Upload, ExternalLink, Copy, CheckCircle, GraduationCap, ChevronDown, X, Search } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
+import { compressImage } from '../../lib/utils'
 import { type Photographer, type SettingsProfileData, type SettingsPaymentData, settingsProfileSchema, settingsPaymentSchema } from '../../types'
 import { Button } from '../../components/ui/Button'
 import { Input, Textarea } from '../../components/ui/Input'
+import { Badge } from '../../components/ui/Badge'
 import { SectionLoader } from '../../components/ui/Spinner'
 
 const TABS = ['Profile', 'Payment', 'Booking'] as const
@@ -19,7 +21,20 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('Profile')
   const [copied, setCopied] = useState(false)
 
-  const { data: photographer, isLoading } = useQuery({
+  const { data: universities = [] } = useQuery({
+    queryKey: ['universities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('universities')
+        .select('id, name, short_name, type')
+        .eq('is_active', true)
+        .order('name')
+      if (error) throw error
+      return data as { id: number; name: string; short_name: string | null; type: string }[]
+    },
+  })
+
+  const { data: photographer, isLoading, error: queryError, refetch } = useQuery({
     queryKey: ['photographer-settings', photographerId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -31,6 +46,7 @@ export function SettingsPage() {
       return data as Photographer
     },
     enabled: !!photographerId,
+    retry: 1,
   })
 
   const profileForm = useForm<SettingsProfileData>({
@@ -39,7 +55,7 @@ export function SettingsPage() {
       display_name: photographer.display_name,
       slug: photographer.slug,
       bio: photographer.bio || '',
-      school_name: photographer.school_name || '',
+      school_names: photographer.school_names || [],
       location: photographer.location || '',
       phone: photographer.phone || '',
       email: photographer.email || '',
@@ -64,7 +80,7 @@ export function SettingsPage() {
           display_name: data.display_name,
           slug: data.slug.toLowerCase(),
           bio: data.bio || null,
-          school_name: data.school_name || null,
+          school_names: data.school_names?.length ? data.school_names : null,
           location: data.location || null,
           phone: data.phone || null,
           email: data.email || null,
@@ -99,7 +115,23 @@ export function SettingsPage() {
   }
 
   if (isLoading) return <SectionLoader />
-  if (!photographer) return <div className="p-4 text-center text-gray-500">Could not load settings.</div>
+  if (!photographerId) return (
+    <div className="p-6 text-center">
+      <p className="text-gray-500 text-sm mb-1">Could not load your photographer profile.</p>
+      <p className="text-xs text-gray-400">Your account may not be linked to a photographer profile yet. Contact support if this persists.</p>
+    </div>
+  )
+  if (queryError || !photographer) return (
+    <div className="p-6 text-center">
+      <p className="text-gray-500 text-sm mb-3">Could not load settings.</p>
+      <button
+        onClick={() => refetch()}
+        className="text-sm text-sky-600 hover:text-sky-700 font-medium"
+      >
+        Try again
+      </button>
+    </div>
+  )
 
   const bookingUrl = `${window.location.origin}/p/${photographer.slug}`
 
@@ -161,10 +193,10 @@ export function SettingsPage() {
             error={profileForm.formState.errors.slug?.message}
             {...profileForm.register('slug')}
           />
-          <Input
-            label="School / University"
-            placeholder="Universiti Malaya"
-            {...profileForm.register('school_name')}
+          <UniversityMultiSelect
+            universities={universities}
+            value={profileForm.watch('school_names') || []}
+            onChange={vals => profileForm.setValue('school_names', vals, { shouldDirty: true })}
           />
           <Input
             label="Location"
@@ -254,14 +286,24 @@ export function SettingsPage() {
 
 function ProfilePhotoSection({ photographer, photographerId, qc }: { photographer: Photographer; photographerId: string; qc: ReturnType<typeof useQueryClient> }) {
   const [_uploading, setUploading] = useState(false)
+  const { user } = useAuth()
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'profile_photo' | 'cover_photo') => {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
     try {
-      const path = `${photographerId}/${field}.${file.name.split('.').pop()}`
-      await supabase.storage.from('profile-photos').upload(path, file, { upsert: true })
+      // Profile: 400×400, Cover: 1200×600 — both WebP
+      const isProfile = field === 'profile_photo'
+      const compressed = await compressImage(file, {
+        maxWidth: isProfile ? 400 : 1200,
+        maxHeight: isProfile ? 400 : 600,
+        quality: 0.85,
+        format: 'webp',
+      })
+      const folder = user?.id ?? photographerId
+      const path = `${folder}/${field}.webp`
+      await supabase.storage.from('profile-photos').upload(path, compressed, { upsert: true, contentType: 'image/webp' })
       const { data: urlData } = supabase.storage.from('profile-photos').getPublicUrl(path)
       await supabase.from('photographers').update({ [field]: urlData.publicUrl }).eq('id', photographerId)
       qc.invalidateQueries({ queryKey: ['photographer-settings', photographerId] })
@@ -297,14 +339,22 @@ function ProfilePhotoSection({ photographer, photographerId, qc }: { photographe
 
 function DuitNowUpload({ photographer, photographerId, qc }: { photographer: Photographer; photographerId: string; qc: ReturnType<typeof useQueryClient> }) {
   const [uploading, setUploading] = useState(false)
+  const { user } = useAuth()
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
     try {
-      const path = `${photographerId}/duitnow-qr.${file.name.split('.').pop()}`
-      await supabase.storage.from('profile-photos').upload(path, file, { upsert: true })
+      // QR codes: keep as PNG to preserve sharp edges & scanability
+      const compressed = await compressImage(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        format: 'png',
+      })
+      const folder = user?.id ?? photographerId
+      const path = `${folder}/duitnow-qr.png`
+      await supabase.storage.from('profile-photos').upload(path, compressed, { upsert: true, contentType: 'image/png' })
       const { data: urlData } = supabase.storage.from('profile-photos').getPublicUrl(path)
       await supabase.from('photographers').update({ duitnow_qr_url: urlData.publicUrl }).eq('id', photographerId)
       qc.invalidateQueries({ queryKey: ['photographer-settings', photographerId] })
@@ -324,6 +374,134 @@ function DuitNowUpload({ photographer, photographerId, qc }: { photographer: Pho
         {photographer.duitnow_qr_url ? 'Replace QR Image' : 'Upload QR Image'}
         <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
       </label>
+    </div>
+  )
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  public: 'Public Universities',
+  private: 'Private Universities',
+  branch_campus: 'Foreign Branch Campuses',
+  university_college: 'University Colleges',
+}
+
+function UniversityMultiSelect({
+  universities,
+  value,
+  onChange,
+}: {
+  universities: { id: number; name: string; short_name: string | null; type: string }[]
+  value: string[]
+  onChange: (vals: string[]) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const filtered = search
+    ? universities.filter(u =>
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        (u.short_name?.toLowerCase().includes(search.toLowerCase()))
+      )
+    : universities
+
+  const toggle = (name: string) => {
+    onChange(value.includes(name) ? value.filter(v => v !== name) : [...value, name])
+  }
+
+  const remove = (name: string) => onChange(value.filter(v => v !== name))
+
+  return (
+    <div ref={ref}>
+      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        University you shooting for
+      </label>
+
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-left hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors"
+      >
+        <span className={value.length ? 'text-gray-900' : 'text-gray-400'}>
+          {value.length ? `${value.length} selected` : '— Select universities —'}
+        </span>
+        <ChevronDown size={15} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div className="mt-1 rounded-xl border border-gray-200 bg-white shadow-lg z-10 relative overflow-hidden">
+          {/* Search */}
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
+            <Search size={13} className="text-gray-400 shrink-0" />
+            <input
+              autoFocus
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search university..."
+              className="w-full text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none"
+            />
+          </div>
+
+          {/* List */}
+          <div className="max-h-60 overflow-y-auto">
+            {['public', 'private', 'branch_campus', 'university_college'].map(type => {
+              const group = filtered.filter(u => u.type === type)
+              if (!group.length) return null
+              return (
+                <div key={type}>
+                  <p className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 sticky top-0">
+                    {TYPE_LABELS[type]}
+                  </p>
+                  {group.map(u => {
+                    const selected = value.includes(u.name)
+                    return (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => toggle(u.name)}
+                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 hover:bg-sky-50 transition-colors ${selected ? 'text-sky-700' : 'text-gray-800'}`}
+                      >
+                        <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${selected ? 'bg-sky-600 border-sky-600' : 'border-gray-300'}`}>
+                          {selected && <CheckCircle size={10} className="text-white" />}
+                        </span>
+                        {u.name}{u.short_name ? ` (${u.short_name})` : ''}
+                      </button>
+                    )
+                  })}
+                </div>
+              )
+            })}
+            {!filtered.length && (
+              <p className="px-3 py-4 text-sm text-gray-400 text-center">No universities found</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Selected badges */}
+      {value.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {value.map(name => (
+            <span key={name} className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 text-xs font-medium bg-sky-100 text-sky-800 border border-sky-200 rounded-full">
+              <GraduationCap size={11} className="shrink-0" />
+              {name}
+              <button type="button" onClick={() => remove(name)} className="ml-0.5 hover:text-sky-900">
+                <X size={11} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

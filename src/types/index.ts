@@ -65,6 +65,7 @@ export interface Photographer {
   profile_photo: string | null
   cover_photo: string | null
   school_name: string | null
+  school_names: string[] | null
   location: string | null
   phone: string | null
   email: string | null
@@ -206,7 +207,7 @@ export const settingsProfileSchema = z.object({
   slug: z.string().min(3, 'Slug must be at least 3 characters')
     .regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'),
   bio: z.string().optional(),
-  school_name: z.string().optional(),
+  school_names: z.array(z.string()).optional(),
   location: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),

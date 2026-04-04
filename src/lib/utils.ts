@@ -108,3 +108,84 @@ export function getStorageUrl(path: string | null | undefined): string | null {
   if (path.startsWith('http')) return path
   return null
 }
+
+// ============================================================
+// Image compression (client-side, Canvas API — no extra deps)
+// ============================================================
+
+export interface CompressOptions {
+  /** Max width in px. Aspect ratio is preserved. Default: 1920 */
+  maxWidth?: number
+  /** Max height in px. Aspect ratio is preserved. Default: 1920 */
+  maxHeight?: number
+  /** Compression quality 0–1. Default: 0.82 */
+  quality?: number
+  /** Output format. Default: 'webp' (best compression). Use 'png' for QR codes. */
+  format?: 'webp' | 'jpeg' | 'png'
+}
+
+export async function compressImage(
+  file: File,
+  options: CompressOptions = {}
+): Promise<File> {
+  const {
+    maxWidth = 1920,
+    maxHeight = 1920,
+    quality = 0.82,
+    format = 'webp',
+  } = options
+
+  const mimeType = `image/${format}`
+
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+
+      let { width, height } = img
+
+      // Scale down only if exceeds max; never upscale
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height)
+        width = Math.round(width * ratio)
+        height = Math.round(height * ratio)
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject(new Error('Canvas 2D not supported'))
+
+      // White background (prevents transparent PNGs becoming black in JPEG/WebP)
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, width, height)
+      ctx.drawImage(img, 0, 0, width, height)
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error('Image compression failed'))
+
+          const baseName = file.name.replace(/\.[^.]+$/, '')
+          const ext = format === 'jpeg' ? 'jpg' : format
+          const compressed = new File([blob], `${baseName}.${ext}`, { type: mimeType })
+
+          // If compression made it larger (rare), return original
+          resolve(compressed.size < file.size ? compressed : file)
+        },
+        mimeType,
+        format === 'png' ? undefined : quality
+      )
+    }
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error('Could not load image for compression'))
+    }
+
+    img.src = objectUrl
+  })
+}

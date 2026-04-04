@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Camera, Mail, Lock, AlertCircle } from 'lucide-react'
+import { Camera, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -8,6 +8,7 @@ import { Input } from '../../components/ui/Input'
 export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { signIn } = useAuth()
@@ -78,14 +79,23 @@ export function LoginPage() {
             <div className="relative">
               <Lock size={16} className="absolute left-3.5 text-gray-400 pointer-events-none" style={{ top: '62%' }} />
               <Input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 label="Password"
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="pl-10"
+                className="pl-10 pr-10"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-3.5 text-gray-400 hover:text-gray-600"
+                style={{ top: '62%' }}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
 
             <Button type="submit" fullWidth size="lg" loading={loading} className="mt-2">
