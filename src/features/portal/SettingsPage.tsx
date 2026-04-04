@@ -9,7 +9,6 @@ import { compressImage } from '../../lib/utils'
 import { type Photographer, type SettingsProfileData, type SettingsPaymentData, settingsProfileSchema, settingsPaymentSchema } from '../../types'
 import { Button } from '../../components/ui/Button'
 import { Input, Textarea } from '../../components/ui/Input'
-import { Badge } from '../../components/ui/Badge'
 import { SectionLoader } from '../../components/ui/Spinner'
 
 const TABS = ['Profile', 'Payment', 'Booking'] as const
