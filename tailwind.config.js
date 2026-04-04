@@ -6,24 +6,26 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        'base': ['1.05rem', '1.65rem'],
+        'lg': ['1.2rem', '1.85rem'],
+        '7xl': ['4.5rem', '1'],
+        '8xl': ['6rem', '1'],
+      },
       colors: {
-        primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
-        },
+        // The Tulip Identity 2026: Pink, White, Black
+        primary: '#FFF0F5', // Lavender Blush
+        primaryDark: '#BE185D', // Pink-700
+        pinkAccent: '#F472B6', // Pink-400 (Softer)
+        charcoal: '#121212', // Lifted Black (Graphite)
+        charcoalLight: '#1E1E1E', // Lighter Gray for cards
+        surface: '#FFFFFF',
+        silver: '#F8F9FA',
+        gold: '#D4AF37',
       },
       fontFamily: {
-        sans: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
-        heading: ['Plus Jakarta Sans', 'sans-serif'],
+        serif: ['"Cormorant Garamond"', 'serif'],
+        sans: ['"Outfit"', 'sans-serif'],
       },
       boxShadow: {
         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
@@ -33,4 +35,3 @@ export default {
   },
   plugins: [],
 }
-
