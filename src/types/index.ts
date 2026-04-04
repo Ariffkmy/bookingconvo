@@ -176,15 +176,15 @@ export interface GalleryImage {
 // ZOD SCHEMAS
 // ============================================================
 export const bookingFormSchema = z.object({
-  customer_name: z.string().min(2, 'Name must be at least 2 characters'),
-  customer_email: z.string().email('Invalid email address'),
-  customer_phone: z.string().min(10, 'Enter a valid phone number'),
+  customer_name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+  customer_email: z.string().email('Invalid email address').max(254, 'Email too long'),
+  customer_phone: z.string().min(10, 'Enter a valid phone number').max(20, 'Phone number too long').regex(/^[+\d\s\-()]+$/, 'Invalid phone number format'),
   package_id: z.string().min(1, 'Please select a package'),
   slot_date: z.string().min(1, 'Please select a date'),
   slot_time: z.string().min(1, 'Please select a timeslot'),
-  location: z.string().min(2, 'Please enter the location/venue'),
+  location: z.string().min(2, 'Please enter the location/venue').max(500, 'Location too long'),
   pax_count: z.number().min(1).max(20),
-  special_requests: z.string().optional(),
+  special_requests: z.string().max(1000, 'Special requests too long (max 1000 characters)').optional(),
 })
 
 export type BookingFormData = z.infer<typeof bookingFormSchema>

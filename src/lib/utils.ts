@@ -37,15 +37,19 @@ export function generateBookingCode(): string {
   const now = new Date()
   const datePart = format(now, 'yyyyMMdd')
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const randomValues = new Uint32Array(6)
+  crypto.getRandomValues(randomValues)
   let random = ''
   for (let i = 0; i < 6; i++) {
-    random += chars[Math.floor(Math.random() * chars.length)]
+    random += chars[randomValues[i] % chars.length]
   }
   return `BK-${datePart}-${random}`
 }
 
 export function generateSessionToken(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36)
+  const array = new Uint8Array(32)
+  crypto.getRandomValues(array)
+  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export function getSessionToken(): string {

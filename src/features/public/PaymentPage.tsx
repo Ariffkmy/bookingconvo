@@ -57,17 +57,31 @@ export function PaymentPage() {
     enabled: !!booking?.package_id,
   })
 
+  const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
+  const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf']
+
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       if (!booking) throw new Error('Booking not found')
       setUploadError('')
 
-      const ext = file.name.split('.').pop()
-      const path = `receipts/${booking.booking_code}/${Date.now()}.${ext}`
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        throw new Error('Invalid file type. Only images (JPEG, PNG, GIF, WebP) and PDF are allowed.')
+      }
+
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        throw new Error('Invalid file extension. Allowed: jpg, jpeg, png, gif, webp, pdf.')
+      }
+
+      const randomBytes = new Uint8Array(16)
+      crypto.getRandomValues(randomBytes)
+      const randomName = Array.from(randomBytes, (b) => b.toString(16).padStart(2, '0')).join('')
+      const path = `receipts/${booking.booking_code}/${randomName}.${ext}`
 
       const { error: uploadError } = await supabase.storage
         .from('receipts')
-        .upload(path, file, { upsert: true })
+        .upload(path, file, { upsert: false })
       if (uploadError) throw uploadError
 
       const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
@@ -105,6 +119,10 @@ export function PaymentPage() {
     if (!file) return
     if (file.size > 10 * 1024 * 1024) {
       setUploadError('File too large. Maximum 10MB.')
+      return
+    }
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      setUploadError('Invalid file type. Only images (JPEG, PNG, GIF, WebP) and PDF are allowed.')
       return
     }
     setSelectedFile(file)
