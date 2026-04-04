@@ -50,12 +50,21 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
     }
   }, [state.expiresAt])
 
+  const sessionToken = getSessionToken()
+
+  const releaseLockById = useCallback(async (lockId: string) => {
+    await supabase.rpc('release_timeslot_lock', {
+      p_lock_id: lockId,
+      p_session_token: sessionToken,
+    })
+  }, [sessionToken])
+
   const lockSlot = useCallback(async (date: string, time: string) => {
     if (!photographerId) return false
 
     // Release previous lock if any
     if (lockIdRef.current) {
-      await supabase.from('timeslot_locks').delete().eq('id', lockIdRef.current)
+      await releaseLockById(lockIdRef.current)
       lockIdRef.current = null
     }
 
@@ -64,7 +73,6 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
     try {
       // Check if slot is still available (no active lock by others)
       const now = new Date().toISOString()
-      const sessionToken = getSessionToken()
 
       const { data: existing } = await supabase
         .from('timeslot_locks')
@@ -73,7 +81,7 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
         .eq('slot_date', date)
         .eq('slot_time', time)
         .gt('expires_at', now)
-        .single()
+        .maybeSingle()
 
       if (existing && existing.session_token !== sessionToken) {
         setState(prev => ({
@@ -92,7 +100,7 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
         .eq('slot_date', date)
         .eq('slot_time', time)
         .not('status', 'eq', 'CANCELLED')
-        .single()
+        .maybeSingle()
 
       if (booked) {
         setState(prev => ({
@@ -142,7 +150,7 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
 
   const releaseLock = useCallback(async () => {
     if (lockIdRef.current) {
-      await supabase.from('timeslot_locks').delete().eq('id', lockIdRef.current)
+      await releaseLockById(lockIdRef.current)
       lockIdRef.current = null
     }
     if (timerRef.current) clearInterval(timerRef.current)
@@ -154,15 +162,16 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
       isLocking: false,
       lockError: null,
     })
-  }, [])
+  }, [releaseLockById])
 
   // Release lock on unmount
   useEffect(() => {
     return () => {
       if (lockIdRef.current) {
-        supabase.from('timeslot_locks').delete().eq('id', lockIdRef.current)
+        releaseLockById(lockIdRef.current)
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getLockId = () => lockIdRef.current
