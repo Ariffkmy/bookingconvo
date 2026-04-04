@@ -8,12 +8,12 @@ export function LandingPage() {
   const [isYearly, setIsYearly] = useState(false);
 
   const steps = [
-    { title: "Sign up and register", icon: UserPlus },
-    { title: "Configure your setting", icon: Settings },
-    { title: "Blast your booking link", icon: Share2 },
-    { title: "Receive booking", icon: Inbox },
-    { title: "Attend the convo photoshoot session", icon: Camera },
-    { title: "Done", icon: CheckCircle }
+    { title: "Daftar akaun", icon: UserPlus },
+    { title: "Tetapkan profil anda", icon: Settings },
+    { title: "Kongsi pautan tempahan", icon: Share2 },
+    { title: "Terima tempahan", icon: Inbox },
+    { title: "Sesi fotografi konvokesyen", icon: Camera },
+    { title: "Selesai", icon: CheckCircle }
   ];
 
   useEffect(() => {
@@ -26,20 +26,20 @@ export function LandingPage() {
 
   const faqs = [
     {
-      q: "How do I get started with GradSnap?",
-      a: "Getting started is easy! Create a free account, set up your profile and packages, configure your calendar availability, and you're ready to share your personalized booking link with clients."
+      q: "Bagaimana saya boleh mula menggunakan GradSnap?",
+      a: "Memulakan adalah mudah! Cipta akaun percuma, sediakan profil dan pakej anda, tetapkan ketersediaan kalendar, dan anda sudah bersedia untuk berkongsi pautan tempahan peribadi anda bersama klien."
     },
     {
-      q: "Can I customize my booking page?",
-      a: "Yes, you can customize your photographer profile with your portfolio, custom avatar, and descriptive text. You can also define unlimited tailored service packages at your own price points."
+      q: "Bolehkah saya sesuaikan halaman tempahan saya?",
+      a: "Ya, anda boleh menyesuaikan profil fotografer anda dengan portfolio, avatar, dan teks deskriptif. Anda juga boleh menentukan pakej perkhidmatan yang disesuaikan dengan harga tersendiri."
     },
     {
-      q: "Is the Google Calendar sync automatic?",
-      a: "Absolutely. Once you connect your Google Calendar, newly received bookings instantly block out the respective timeslots, preventing double bookings automatically."
+      q: "Adakah penyegerakan Google Calendar automatik?",
+      a: "Sudah tentu. Sebaik sahaja anda menghubungkan Google Calendar, tempahan baharu yang diterima akan terus menyekat slot masa berkenaan, mengelakkan tempahan berganda secara automatik."
     },
     {
-      q: "Do clients pay directly through the app?",
-      a: "Clients submit their booking and upload their receipt directly into the system. You verify the status and process payments according to your standard operating procedures, keeping your admin records accurate."
+      q: "Adakah klien membayar terus melalui aplikasi?",
+      a: "Klien menghantar tempahan dan memuat naik resit terus ke dalam sistem. Anda mengesahkan status dan memproses pembayaran mengikut prosedur operasi standard anda, memastikan rekod pentadbiran anda sentiasa tepat."
     }
   ];
 
@@ -54,17 +54,17 @@ export function LandingPage() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center justify-center gap-8 ml-4">
-            <a href="#how-it-works" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">How it works</a>
-            <a href="#pricing" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Pricing</a>
-            <a href="#faq" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">FAQ</a>
-            <Link to="/manual" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">User Manual</Link>
+            <a href="#how-it-works" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Cara Kerja</a>
+            <a href="#pricing" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Harga</a>
+            <a href="#faq" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Soalan Lazim</a>
+            <Link to="/manual" className="text-sm font-semibold text-gray-600 hover:text-[#0ea5e9] transition-colors">Manual Pengguna</Link>
           </nav>
           <div className="flex items-center gap-2">
             <Link to="/signin">
-              <Button variant="outline" size="sm" className="rounded-full shadow-sm text-sm px-4">Sign In</Button>
+              <Button variant="outline" size="sm" className="rounded-full shadow-sm text-sm px-4">Log Masuk</Button>
             </Link>
             <Link to="/signup">
-              <Button variant="primary" size="sm" className="rounded-full shadow-sm text-sm px-5 hover:shadow-md transition-shadow">Sign Up</Button>
+              <Button variant="primary" size="sm" className="rounded-full shadow-sm text-sm px-5 hover:shadow-md transition-shadow">Daftar</Button>
             </Link>
           </div>
         </header>
@@ -82,24 +82,24 @@ export function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
               </span>
-              Now beautifully captured
+              Kini diabadikan dengan indah
             </div>
             <h1 className="text-5xl sm:text-7xl font-bold text-[#1A202C] mb-6 leading-[1.1] tracking-tight">
-              Manage your <span className="text-[#0ea5e9]">graduation</span> bookings with ease.
+              Urus tempahan <span className="text-[#0ea5e9]">konvokesyen</span> anda dengan mudah.
             </h1>
             <p className="text-xl text-gray-500 mb-10 leading-relaxed max-w-2xl mx-auto">
-              GradSnap connects you with talented graduation photographers.
-              Book your session, manage your schedule, and deliver stunning memories.
+              GradSnap menghubungkan anda dengan fotografer konvokesyen berbakat.
+              Tempah sesi anda, urus jadual, dan hasilkan kenangan yang memukau.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
               <Link to="/signup" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-sm">
-                  Get Started — It's Free
+                  Mulakan — Percuma
                 </Button>
               </Link>
               <Link to="/signin" className="w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-base">
-                  Sign In
+                  Log Masuk
                 </Button>
               </Link>
             </div>
@@ -112,7 +112,7 @@ export function LandingPage() {
           <div className="max-w-5xl mx-auto px-6 text-center">
             <div className="flex items-center justify-center gap-2 mb-8">
               <Sparkles size={16} className="text-sky-500" />
-              <p className="text-sm font-bold text-sky-600 tracking-wider uppercase">Used by graduates across Malaysia</p>
+              <p className="text-sm font-bold text-sky-600 tracking-wider uppercase">Digunakan oleh graduan di seluruh Malaysia</p>
               <Sparkles size={16} className="text-sky-500" />
             </div>
             <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
@@ -127,8 +127,8 @@ export function LandingPage() {
         {/* How It Works */}
         <section id="how-it-works" className="px-6 py-24 bg-white border-t border-gray-100 scroll-mt-20">
           <div className="max-w-5xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">How it works</h2>
-            <p className="text-lg text-gray-500 mb-16">Your seamless workflow from signup to delivery.</p>
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Cara ia berfungsi</h2>
+            <p className="text-lg text-gray-500 mb-16">Aliran kerja lancar dari pendaftaran hingga penghantaran.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
               {steps.map((step, idx) => {
@@ -145,7 +145,7 @@ export function LandingPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors duration-500 ${isActive ? 'bg-[#0ea5e9] text-white' : 'bg-gray-100 text-gray-400'}`}>
                       <Icon size={24} />
                     </div>
-                    <div className="text-sm font-bold text-gray-400 mb-1">Step {idx + 1}</div>
+                    <div className="text-sm font-bold text-gray-400 mb-1">Langkah {idx + 1}</div>
                     <h3 className={`font-bold text-lg transition-colors duration-500 ${isActive ? 'text-[#0ea5e9]' : 'text-[#1A202C]'}`}>
                       {step.title}
                     </h3>
@@ -160,14 +160,14 @@ export function LandingPage() {
         <section className="px-6 py-24 bg-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
           <div className="max-w-6xl mx-auto text-center relative z-10">
-            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Loved by Photographers</h2>
-            <p className="text-lg text-gray-500 mb-16">See what professionals are saying about GradSnap.</p>
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Disukai oleh Fotografer</h2>
+            <p className="text-lg text-gray-500 mb-16">Lihat apa yang profesional katakan tentang GradSnap.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               {[
-                { name: "Ahmad Danish", role: "Convocation Specialist", quote: "GradSnap completely removed the headache of double bookings. The Google Calendar sync is flawless.", rating: 5 },
-                { name: "Sarah Lee", role: "Freelance Photographer", quote: "My clients love how professional the booking link looks. I've seen a 40% increase in paid bookings since switching.", rating: 5 },
-                { name: "Faizal Tahir", role: "Studio Owner", quote: "The receipt generation and admin portal saves me hours of manual tracking every week. It's a game changer.", rating: 5 }
+                { name: "Ahmad Danish", role: "Pakar Konvokesyen", quote: "GradSnap telah menghapuskan kekeliruan tempahan berganda. Penyegerakan Google Calendar amat lancar.", rating: 5 },
+                { name: "Sarah Lee", role: "Fotografer Bebas", quote: "Klien saya suka betapa profesionalnya pautan tempahan itu. Saya melihat peningkatan 40% dalam tempahan berbayar sejak beralih.", rating: 5 },
+                { name: "Faizal Tahir", role: "Pemilik Studio", quote: "Jana resit dan portal pentadbir menjimatkan berjam-jam kerja manual setiap minggu. Ia benar-benar mengubah cara kerja saya.", rating: 5 }
               ].map((t, idx) => (
                 <div key={idx} className="bg-white rounded-3xl p-8 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-2 transition-transform duration-300">
                   <div className="flex gap-1 mb-6">
@@ -192,44 +192,44 @@ export function LandingPage() {
         {/* Pricing */}
         <section id="pricing" className="px-6 py-20 bg-[#F9FAFB] scroll-mt-20">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Simple, transparent pricing</h2>
-            <p className="text-gray-500 mb-10">Everything you need to run your photography business.</p>
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-4">Harga yang mudah dan telus</h2>
+            <p className="text-gray-500 mb-10">Semua yang anda perlukan untuk menjalankan perniagaan fotografi anda.</p>
 
             {/* Toggle Switch */}
             <div className="flex justify-center items-center gap-3 mb-10">
-              <span className={`text-sm font-semibold cursor-pointer transition-colors ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`} onClick={() => setIsYearly(false)}>Monthly</span>
+              <span className={`text-sm font-semibold cursor-pointer transition-colors ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`} onClick={() => setIsYearly(false)}>Bulanan</span>
               <button
                 onClick={() => setIsYearly(!isYearly)}
                 className={`w-14 h-8 rounded-full p-1 relative transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:ring-offset-2 ${isYearly ? 'bg-[#0ea5e9]' : 'bg-gray-200'}`}
-                aria-label="Toggle billing period"
+                aria-label="Tukar tempoh bil"
               >
                 <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${isYearly ? 'translate-x-6' : 'translate-x-0'}`}></div>
               </button>
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsYearly(true)}>
-                <span className={`text-sm font-semibold transition-colors ${isYearly ? 'text-gray-900' : 'text-gray-500'}`}>Yearly</span>
-                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold shrink-0 animate-pulse">Save 76%</span>
+                <span className={`text-sm font-semibold transition-colors ${isYearly ? 'text-gray-900' : 'text-gray-500'}`}>Tahunan</span>
+                <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold shrink-0 animate-pulse">Jimat 76%</span>
               </div>
             </div>
 
             <div className="max-w-md mx-auto bg-white rounded-2xl border-[1.5px] border-[#0ea5e9] shadow-card overflow-hidden">
               <div className="p-8 text-center border-b border-gray-100">
-                <h3 className="text-xl font-bold text-[#1A202C] mb-2 lg:mt-2">Pro Package</h3>
+                <h3 className="text-xl font-bold text-[#1A202C] mb-2 lg:mt-2">Pakej Pro</h3>
                 <div className="flex justify-center items-baseline gap-1 mb-4 pt-4">
                   <span className="text-5xl font-extrabold text-[#1A202C] tracking-tight transition-all duration-300">
                     RM{isYearly ? '250' : '89'}
                   </span>
-                  <span className="text-gray-500 font-medium">/ {isYearly ? 'year' : 'month'}</span>
+                  <span className="text-gray-500 font-medium">/ {isYearly ? 'tahun' : 'bulan'}</span>
                 </div>
-                <p className="text-sm text-gray-500">Perfect for professional graduation photographers.</p>
+                <p className="text-sm text-gray-500">Sesuai untuk fotografer konvokesyen profesional.</p>
               </div>
               <div className="p-8 bg-white text-left">
                 <ul className="space-y-4 mb-10">
                   {[
-                    'Public booking link',
-                    'Google Calendar sync',
-                    'Email notification',
-                    'Receipt generation',
-                    'Admin portal to manage booking'
+                    'Pautan tempahan awam',
+                    'Penyegerakan Google Calendar',
+                    'Notifikasi e-mel',
+                    'Jana resit',
+                    'Portal pentadbir untuk urus tempahan'
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-3 text-gray-700">
                       <CheckCircle size={18} className="text-[#0ea5e9] shrink-0" />
@@ -239,7 +239,7 @@ export function LandingPage() {
                 </ul>
                 <Link to="/signup" className="block w-full">
                   <Button size="lg" className="w-full h-12 shadow-sm font-semibold">
-                    Get Started Now
+                    Mulakan Sekarang
                   </Button>
                 </Link>
               </div>
@@ -250,7 +250,7 @@ export function LandingPage() {
         {/* FAQ */}
         <section id="faq" className="px-6 py-24 bg-white border-t border-gray-100 scroll-mt-20">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-[#1A202C] mb-12 text-center">Frequently asked questions</h2>
+            <h2 className="text-3xl font-bold text-[#1A202C] mb-12 text-center">Soalan Lazim</h2>
             <div className="space-y-4 text-left">
               {faqs.map((faq, index) => {
                 const isOpen = openFaq === index;
@@ -287,11 +287,11 @@ export function LandingPage() {
             <div className="absolute top-0 right-0 -m-20 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
             <div className="absolute bottom-0 left-0 -m-20 w-80 h-80 bg-sky-300 opacity-20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
 
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 relative z-10 leading-tight tracking-tight">Ready to boost your<br /> graduation bookings?</h2>
-            <p className="text-sky-100 mb-10 text-lg max-w-xl mx-auto relative z-10 leading-relaxed">Join top independent photographers already using GradSnap to seamlessly manage their convo photoshoots and wow their clients.</p>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 relative z-10 leading-tight tracking-tight">Bersedia tingkatkan<br /> tempahan konvokesyen anda?</h2>
+            <p className="text-sky-100 mb-10 text-lg max-w-xl mx-auto relative z-10 leading-relaxed">Sertai fotografer bebas terkemuka yang sudah menggunakan GradSnap untuk mengurus sesi fotografi konvo mereka dan memukau klien.</p>
             <Link to="/signup" className="relative z-10 inline-block">
               <Button variant="secondary" size="lg" className="h-14 px-10 text-lg rounded-2xl shadow-xl hover:scale-105 transition-transform duration-300 border-none bg-white text-sky-600 hover:bg-sky-50 font-bold">
-                Create Your Free Account
+                Cipta Akaun Percuma Anda
               </Button>
             </Link>
           </div>
@@ -300,7 +300,7 @@ export function LandingPage() {
 
       {/* Footer */}
       <footer className="px-6 py-6 border-t border-gray-100 text-center">
-        <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} GradSnap. All rights reserved.</p>
+        <p className="text-xs text-gray-400">&copy; {new Date().getFullYear()} GradSnap. Hak cipta terpelihara.</p>
       </footer>
     </div>
   )
