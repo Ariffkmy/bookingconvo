@@ -54,10 +54,12 @@ export function generateSessionToken(): string {
 
 export function getSessionToken(): string {
   const key = 'booking_session_token'
-  let token = sessionStorage.getItem(key)
+  // Use localStorage so the token persists across browser close/reopen,
+  // allowing customers to return to an in-progress booking.
+  let token = localStorage.getItem(key)
   if (!token) {
     token = generateSessionToken()
-    sessionStorage.setItem(key, token)
+    localStorage.setItem(key, token)
   }
   return token
 }

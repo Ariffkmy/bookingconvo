@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Camera, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { PageLoader } from '../../components/ui/Spinner'
 
 export function SignUpPage() {
   const [fullName, setFullName] = useState('')
@@ -13,8 +14,17 @@ export function SignUpPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { signUp } = useAuth()
+  const { signUp, user, role, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+
+  // Redirect users who already have an active session
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(role === 'admin' ? '/admin/dashboard' : '/portal/dashboard', { replace: true })
+    }
+  }, [authLoading, user, role, navigate])
+
+  if (authLoading) return <PageLoader label="Loading..." />
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
