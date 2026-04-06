@@ -57,7 +57,7 @@ create policy "public insert booking history" on booking_status_history for inse
     or is_admin()
     or (
       auth.uid() is null
-      and to_status = 'PENDING_VERIFICATION'
+      and to_status = 'CONFIRMED'
       and from_status = 'PENDING_PAYMENT'
     )
   );

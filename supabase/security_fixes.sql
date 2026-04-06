@@ -67,7 +67,7 @@ $$;
 -- FIX: Only allow inserting history for bookings the caller owns
 -- (via booking code) or is authenticated as photographer/admin.
 -- Unauthenticated inserts are restricted to PENDING_PAYMENT ->
--- PENDING_VERIFICATION transitions only.
+-- CONFIRMED transitions only (receipt upload auto-confirms booking).
 -- ============================================================
 drop policy if exists "public insert booking history" on booking_status_history;
 
@@ -86,7 +86,7 @@ create policy "public insert booking history" on booking_status_history for inse
     -- Unauthenticated users can only record the payment receipt upload transition
     (
       auth.uid() is null
-      and to_status = 'PENDING_VERIFICATION'
+      and to_status = 'CONFIRMED'
       and from_status = 'PENDING_PAYMENT'
     )
   );
@@ -99,7 +99,7 @@ create policy "public insert booking history" on booking_status_history for inse
 -- unauthenticated access for fields like receipt_url and status).
 --
 -- FIX: Add explicit policy restricting unauthenticated updates
--- to only the receipt upload transition fields.
+-- to only the receipt upload transition fields (PENDING_PAYMENT -> CONFIRMED).
 -- ============================================================
 drop policy if exists "public update booking receipt" on bookings;
 
@@ -110,8 +110,8 @@ create policy "public update booking receipt" on bookings for update
     and status = 'PENDING_PAYMENT'
   )
   with check (
-    -- Unauthenticated updates can only set receipt fields and move to PENDING_VERIFICATION
-    status = 'PENDING_VERIFICATION'
+    -- Unauthenticated updates can only set receipt fields and move directly to CONFIRMED
+    status = 'CONFIRMED'
   );
 
 -- ============================================================

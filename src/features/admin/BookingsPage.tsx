@@ -11,7 +11,6 @@ import { SectionLoader } from '../../components/ui/Spinner'
 const STATUS_FILTERS = [
   { value: '', label: 'All' },
   { value: 'PENDING_PAYMENT', label: 'Pending Payment' },
-  { value: 'PENDING_VERIFICATION', label: 'Verify Receipt' },
   { value: 'CONFIRMED', label: 'Confirmed' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'CANCELLED', label: 'Cancelled' },

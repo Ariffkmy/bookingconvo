@@ -7,7 +7,6 @@ export type UserRole = 'admin' | 'photographer' | 'customer'
 
 export type BookingStatus =
   | 'PENDING_PAYMENT'
-  | 'PENDING_VERIFICATION'
   | 'CONFIRMED'
   | 'RESCHEDULED'
   | 'CANCELLED'
@@ -16,7 +15,6 @@ export type BookingStatus =
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
   PENDING_PAYMENT: 'Pending Payment',
-  PENDING_VERIFICATION: 'Verifying Payment',
   CONFIRMED: 'Confirmed',
   RESCHEDULED: 'Rescheduled',
   CANCELLED: 'Cancelled',
@@ -26,7 +24,6 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
 
 export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
   PENDING_PAYMENT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  PENDING_VERIFICATION: 'bg-blue-100 text-blue-800 border-blue-200',
   CONFIRMED: 'bg-green-100 text-green-800 border-green-200',
   RESCHEDULED: 'bg-orange-100 text-orange-800 border-orange-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
@@ -36,8 +33,7 @@ export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
 
 // Valid transitions per status
 export const VALID_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
-  PENDING_PAYMENT: ['PENDING_VERIFICATION', 'CANCELLED'],
-  PENDING_VERIFICATION: ['CONFIRMED', 'CANCELLED'],
+  PENDING_PAYMENT: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['COMPLETED', 'RESCHEDULED', 'CANCELLED'],
   RESCHEDULED: ['CONFIRMED', 'CANCELLED'],
   CANCELLED: [],

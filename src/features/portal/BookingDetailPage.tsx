@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
-import { ChevronLeft, CheckCircle, X, Calendar, Clock, MapPin, Users, Phone, Mail, ExternalLink } from 'lucide-react'
+import { ChevronLeft, Calendar, Clock, MapPin, Users, Phone, Mail, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking, type Package, type BookingStatusHistory, type BookingStatus, VALID_TRANSITIONS } from '../../types'
@@ -159,46 +159,18 @@ export function BookingDetailPage() {
         <BookingStatusBadge status={booking.status} />
       </div>
 
-      {/* Receipt Review (if pending verification) */}
-      {booking.status === 'PENDING_VERIFICATION' && booking.receipt_url && (
-        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-4">
-          <h3 className="text-sm font-semibold text-amber-900 mb-3">Review Payment Receipt</h3>
-          <button
-            onClick={() => setReceiptModal(true)}
-            className="w-full"
-          >
+      {/* Payment Receipt */}
+      {booking.receipt_url && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Payment Receipt</h3>
+          <button onClick={() => setReceiptModal(true)} className="w-full">
             <img
               src={booking.receipt_url}
               alt="Payment Receipt"
-              className="w-full max-h-48 object-contain rounded-xl border border-amber-200 bg-white cursor-zoom-in"
+              className="w-full max-h-48 object-contain rounded-xl border border-gray-200 bg-gray-50 cursor-zoom-in"
             />
           </button>
-          <p className="text-xs text-amber-600 mt-2 text-center">Tap to view full receipt</p>
-
-          <div className="flex gap-2 mt-3">
-            <Button
-              fullWidth
-              variant="primary"
-              onClick={() => setConfirmAction({
-                toStatus: 'CONFIRMED',
-                label: 'Approve Booking',
-                message: `Approve and confirm this booking for ${booking.customer_name}?`,
-              })}
-            >
-              <CheckCircle size={16} /> Approve
-            </Button>
-            <Button
-              fullWidth
-              variant="danger"
-              onClick={() => setConfirmAction({
-                toStatus: 'PENDING_PAYMENT',
-                label: 'Request Re-upload',
-                message: 'Request the customer to re-upload their receipt?',
-              })}
-            >
-              <X size={16} /> Reject
-            </Button>
-          </div>
+          <p className="text-xs text-gray-400 mt-2 text-center">Tap to view full receipt</p>
         </div>
       )}
 

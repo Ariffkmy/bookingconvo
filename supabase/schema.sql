@@ -11,7 +11,6 @@ create type user_role as enum ('admin', 'photographer', 'customer');
 
 create type booking_status as enum (
   'PENDING_PAYMENT',
-  'PENDING_VERIFICATION',
   'CONFIRMED',
   'RESCHEDULED',
   'CANCELLED',
