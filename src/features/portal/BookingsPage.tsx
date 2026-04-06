@@ -397,7 +397,6 @@ function CalendarView({ bookings }: { bookings: Booking[] }) {
         {(Object.entries(STATUS_BLOCK_COLORS) as [BookingStatus, string][]).map(([status, colors]) => {
           const count = bookings.filter(b => b.status === status).length
           if (count === 0) return null
-          const dotColor = colors.split(' ')[2].replace('text-', 'bg-').replace('-900', '-500').replace('-700', '-400').replace('-600', '-500')
           return (
             <span key={status} className="flex items-center gap-1.5 text-xs text-gray-500">
               <span className={`w-2 h-2 rounded-sm border-l-2 ${colors.split(' ').slice(0, 2).join(' ')}`} />
