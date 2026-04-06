@@ -91,7 +91,7 @@ export function PaymentPage() {
         .update({
           receipt_url: urlData.publicUrl,
           receipt_uploaded_at: new Date().toISOString(),
-          status: 'PENDING_VERIFICATION',
+          status: 'CONFIRMED',
         })
         .eq('booking_code', booking.booking_code)
       if (updateError) throw updateError
@@ -99,7 +99,7 @@ export function PaymentPage() {
       await supabase.from('booking_status_history').insert({
         booking_id: booking.id,
         from_status: 'PENDING_PAYMENT',
-        to_status: 'PENDING_VERIFICATION',
+        to_status: 'CONFIRMED',
         note: 'Payment receipt uploaded by customer',
       })
 
@@ -149,17 +149,13 @@ export function PaymentPage() {
     )
   }
 
-  if (booking.status === 'PENDING_VERIFICATION' || booking.status === 'CONFIRMED') {
+  if (booking.status === 'CONFIRMED') {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center">
           <CheckCircle size={48} className="text-green-500 mx-auto mb-3" />
           <h2 className="font-bold text-gray-900 text-lg mb-1">Receipt Submitted!</h2>
-          <p className="text-gray-500 text-sm mb-4">
-            {booking.status === 'PENDING_VERIFICATION'
-              ? "We're waiting for the photographer to verify your payment."
-              : "Your booking has been confirmed!"}
-          </p>
+          <p className="text-gray-500 text-sm mb-4">Your booking has been confirmed!</p>
           <BookingStatusBadge status={booking.status} className="mx-auto mb-4" />
           <Button onClick={() => navigate(`/booking/${bookingCode}`)}>
             View Booking Status <ArrowRight size={16} />
@@ -301,7 +297,7 @@ export function PaymentPage() {
       </Button>
 
       <p className="text-xs text-gray-400 text-center mt-3">
-        After submission, the photographer will verify your payment and confirm your booking.
+        After submission, your booking will be automatically confirmed.
       </p>
     </div>
   )

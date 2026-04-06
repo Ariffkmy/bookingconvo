@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { format, startOfMonth, endOfMonth } from 'date-fns'
-import { Users, BookOpen, TrendingUp, Camera, AlertCircle } from 'lucide-react'
+import { Users, BookOpen, TrendingUp, Camera } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { type Booking, type Photographer } from '../../types'
 import { formatCurrency } from '../../lib/utils'
@@ -47,7 +47,6 @@ export function AdminDashboardPage() {
 
   if (loadingPhotographers || loadingBookings) return <SectionLoader />
 
-  const pendingVerification = bookings.filter(b => b.status === 'PENDING_VERIFICATION').length
   const monthRevenue = (monthStats || [])
     .filter(b => b.status !== 'CANCELLED')
     .reduce((sum, b) => sum + (b.payment_amount || 0), 0)
@@ -63,7 +62,6 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard icon={<Users size={18} className="text-indigo-600" />} label="Photographers" value={photographers.length} bg="bg-indigo-50" />
         <StatCard icon={<BookOpen size={18} className="text-sky-600" />} label="Total Bookings" value={bookings.length} bg="bg-sky-50" />
-        <StatCard icon={<AlertCircle size={18} className="text-amber-500" />} label="Pending Receipts" value={pendingVerification} bg="bg-amber-50" />
         <StatCard icon={<TrendingUp size={18} className="text-green-600" />} label="This Month Revenue" value={formatCurrency(monthRevenue)} bg="bg-green-50" isText />
       </div>
 

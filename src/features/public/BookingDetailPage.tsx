@@ -76,11 +76,6 @@ export function BookingDetailPage() {
       title: 'Awaiting Payment',
       desc: 'Please transfer the payment and upload your receipt to proceed.',
     },
-    PENDING_VERIFICATION: {
-      icon: <Clock size={20} className="text-blue-500" />,
-      title: 'Verifying Payment',
-      desc: 'The photographer is reviewing your payment receipt.',
-    },
     CONFIRMED: {
       icon: <CheckCircle size={20} className="text-green-500" />,
       title: 'Booking Confirmed!',
@@ -138,19 +133,6 @@ export function BookingDetailPage() {
             Upload Payment Receipt
           </Button>
         </Link>
-      )}
-
-      {booking.status === 'PENDING_VERIFICATION' && booking.receipt_url && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-4 text-sm text-blue-700">
-          <CheckCircle size={16} className="inline mr-1.5" />
-          Receipt submitted. Waiting for verification.
-          <Link
-            to={`/booking/${bookingCode}/payment`}
-            className="block mt-2 text-blue-600 underline text-xs"
-          >
-            Re-upload receipt
-          </Link>
-        </div>
       )}
 
       {booking.gallery_url && booking.status === 'DELIVERED' && (
