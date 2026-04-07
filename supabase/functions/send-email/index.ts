@@ -272,6 +272,19 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Guard: require the Supabase anon key or service key as a shared secret.
+  // Since JWT verification is disabled (to allow public booking pages to call
+  // this function), we validate against the project's anon key instead.
+  const incomingKey = req.headers.get('apikey') ?? req.headers.get('authorization')?.replace('Bearer ', '')
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (incomingKey !== anonKey && incomingKey !== serviceKey) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
     const payload = (await req.json()) as EmailPayload
 
