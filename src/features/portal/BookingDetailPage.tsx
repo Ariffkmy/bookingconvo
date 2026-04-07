@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import { ChevronLeft, Calendar, Clock, MapPin, Users, Phone, Mail, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { sendStatusChangeEmail } from '../../lib/email'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking, type Package, type BookingStatusHistory, type BookingStatus, VALID_TRANSITIONS } from '../../types'
 import { formatCurrency, formatTime } from '../../lib/utils'
@@ -73,7 +74,21 @@ export function BookingDetailPage() {
         note: note || null,
       })
     },
-    onSuccess: () => {
+    onSuccess: (_data, { toStatus, note }) => {
+      if (booking) {
+        sendStatusChangeEmail(
+          {
+            booking_code: booking.booking_code,
+            customer_name: booking.customer_name,
+            customer_email: booking.customer_email,
+            slot_date: booking.slot_date,
+            slot_time: booking.slot_time,
+            location: booking.location,
+          },
+          toStatus,
+          note,
+        )
+      }
       qc.invalidateQueries({ queryKey: ['booking-detail', id] })
       qc.invalidateQueries({ queryKey: ['booking-history', id] })
       qc.invalidateQueries({ queryKey: ['portal-bookings'] })
@@ -110,7 +125,21 @@ export function BookingDetailPage() {
         note: 'Gallery delivered to customer',
       })
     },
-    onSuccess: () => {
+    onSuccess: (_data, galleryUrl) => {
+      if (booking) {
+        sendStatusChangeEmail(
+          {
+            booking_code: booking.booking_code,
+            customer_name: booking.customer_name,
+            customer_email: booking.customer_email,
+            slot_date: booking.slot_date,
+            slot_time: booking.slot_time,
+            location: booking.location,
+            gallery_url: galleryUrl,
+          },
+          'DELIVERED',
+        )
+      }
       qc.invalidateQueries({ queryKey: ['booking-detail', id] })
       qc.invalidateQueries({ queryKey: ['booking-history', id] })
       setGalleryModal(false)

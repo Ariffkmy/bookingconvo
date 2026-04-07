@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Camera, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { sendGreetingEmail } from '../../lib/email'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { PageLoader } from '../../components/ui/Spinner'
@@ -42,6 +43,8 @@ export function SignUpPage() {
     setLoading(true)
     try {
       const { session } = await signUp(email, password, fullName)
+      // Send greeting email regardless of confirmation mode
+      sendGreetingEmail(email, fullName)
       if (session) {
         // Auto-confirmed (email confirmation disabled in Supabase)
         navigate('/portal/dashboard')
