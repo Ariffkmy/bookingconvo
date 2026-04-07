@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
-import { ChevronLeft, Calendar, Clock, MapPin, Users, Phone, Mail, ExternalLink } from 'lucide-react'
+import { ChevronLeft, Calendar, Clock, MapPin, Users, Phone, Mail, ExternalLink, RefreshCw } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking, type Package, type BookingStatusHistory, type BookingStatus, VALID_TRANSITIONS } from '../../types'
@@ -10,7 +10,7 @@ import { formatCurrency, formatTime } from '../../lib/utils'
 import { Button } from '../../components/ui/Button'
 import { BookingStatusBadge } from '../../components/ui/Badge'
 import { Modal } from '../../components/ui/Modal'
-import { Textarea } from '../../components/ui/Input'
+import { Input, Textarea } from '../../components/ui/Input'
 import { SectionLoader } from '../../components/ui/Spinner'
 
 export function BookingDetailPage() {
@@ -28,6 +28,10 @@ export function BookingDetailPage() {
   const [receiptModal, setReceiptModal] = useState(false)
   const [galleryUrlInput, setGalleryUrlInput] = useState('')
   const [galleryModal, setGalleryModal] = useState(false)
+  const [rescheduleModal, setRescheduleModal] = useState(false)
+  const [rescheduleDate, setRescheduleDate] = useState('')
+  const [rescheduleTime, setRescheduleTime] = useState('')
+  const [rescheduleNote, setRescheduleNote] = useState('')
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking-detail', id],
@@ -117,6 +121,31 @@ export function BookingDetailPage() {
     },
   })
 
+  const rescheduleMutation = useMutation({
+    mutationFn: async ({ newDate, newTime, note }: { newDate: string; newTime: string; note?: string }) => {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ slot_date: newDate, slot_time: newTime, status: 'RESCHEDULED', updated_at: new Date().toISOString() })
+        .eq('id', id)
+      if (error) throw error
+      await supabase.from('booking_status_history').insert({
+        booking_id: id,
+        from_status: booking?.status,
+        to_status: 'RESCHEDULED',
+        note: note || null,
+      })
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['booking-detail', id] })
+      qc.invalidateQueries({ queryKey: ['booking-history', id] })
+      qc.invalidateQueries({ queryKey: ['portal-bookings'] })
+      setRescheduleModal(false)
+      setRescheduleDate('')
+      setRescheduleTime('')
+      setRescheduleNote('')
+    },
+  })
+
   if (isLoading) return <SectionLoader />
   if (!booking) return <div className="p-4 text-center text-gray-500">Booking not found.</div>
 
@@ -144,6 +173,7 @@ export function BookingDetailPage() {
     },
   ]
   const ACTION_BUTTONS = ALL_ACTION_BUTTONS.filter(a => validNext.includes(a.toStatus))
+  const canReschedule = validNext.includes('RESCHEDULED')
 
   return (
     <div>
@@ -235,7 +265,7 @@ export function BookingDetailPage() {
       </div>
 
       {/* Action Buttons */}
-      {ACTION_BUTTONS.length > 0 && (
+      {(ACTION_BUTTONS.length > 0 || canReschedule) && (
         <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Actions</h3>
           <div className="space-y-2">
@@ -249,6 +279,21 @@ export function BookingDetailPage() {
                 {btn.label}
               </Button>
             ))}
+            {canReschedule && (
+              <Button
+                fullWidth
+                variant="outline"
+                onClick={() => {
+                  setRescheduleDate(booking.slot_date)
+                  setRescheduleTime(booking.slot_time)
+                  setRescheduleNote('')
+                  setRescheduleModal(true)
+                }}
+              >
+                <RefreshCw size={14} />
+                Reschedule
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -353,6 +398,43 @@ export function BookingDetailPage() {
         >
           Save Note
         </Button>
+      </Modal>
+
+      {/* Reschedule Modal */}
+      <Modal isOpen={rescheduleModal} onClose={() => setRescheduleModal(false)} title="Reschedule Booking" size="sm">
+        <p className="text-sm text-gray-600 mb-3">Select a new date and time for this session.</p>
+        <div className="space-y-3 mb-3">
+          <Input
+            label="New Date"
+            type="date"
+            value={rescheduleDate}
+            onChange={e => setRescheduleDate(e.target.value)}
+          />
+          <Input
+            label="New Time"
+            type="time"
+            value={rescheduleTime}
+            onChange={e => setRescheduleTime(e.target.value)}
+          />
+          <Textarea
+            label="Note (optional)"
+            placeholder="Reason for rescheduling..."
+            rows={2}
+            value={rescheduleNote}
+            onChange={e => setRescheduleNote(e.target.value)}
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" fullWidth onClick={() => setRescheduleModal(false)}>Cancel</Button>
+          <Button
+            fullWidth
+            loading={rescheduleMutation.isPending}
+            disabled={!rescheduleDate || !rescheduleTime}
+            onClick={() => rescheduleMutation.mutate({ newDate: rescheduleDate, newTime: rescheduleTime, note: rescheduleNote })}
+          >
+            Confirm Reschedule
+          </Button>
+        </div>
       </Modal>
 
       {/* Gallery Delivery Modal */}
