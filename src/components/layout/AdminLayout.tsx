@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, BookOpen, Menu, X, LogOut, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpen, Menu, X, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
 
@@ -46,12 +46,9 @@ export function AdminLayout() {
       <aside className="hidden md:flex flex-col w-56 bg-white border-r border-gray-200 fixed h-full z-20">
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <Shield size={15} className="text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-sm text-gray-900">GradSnap</p>
-              <p className="text-xs text-gray-500">Admin</p>
+            <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-8 w-auto object-contain" />
+            <div className="border-l border-gray-200 pl-2 ml-1">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Admin</p>
             </div>
           </div>
         </div>

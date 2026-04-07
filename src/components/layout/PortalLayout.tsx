@@ -53,7 +53,7 @@ export function PortalLayout() {
       <aside className="hidden md:flex flex-col w-56 bg-white border-r border-gray-200 fixed h-full z-20">
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <img src="/logoconvo.png" alt="Logo" className="h-8 w-auto object-contain" />
+            <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-8 w-auto object-contain" />
             <div className="border-l border-gray-200 pl-2 ml-1">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Portal</p>
             </div>
@@ -90,7 +90,7 @@ export function PortalLayout() {
           <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white flex flex-col shadow-xl">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img src="/logoconvo.png" alt="Logo" className="h-8 w-auto object-contain" />
+                <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-8 w-auto object-contain" />
                 <span className="font-bold text-sm text-gray-900 ml-1">Portal</span>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-lg hover:bg-gray-100">
@@ -124,7 +124,7 @@ export function PortalLayout() {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2">
-            <img src="/logoconvo.png" alt="Logo" className="h-7 w-auto object-contain" />
+            <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-7 w-auto object-contain" />
             <span className="font-semibold text-sm ml-1">Portal</span>
           </div>
           <div className="w-8" />

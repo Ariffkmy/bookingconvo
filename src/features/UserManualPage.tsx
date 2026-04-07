@@ -9,7 +9,7 @@ export function UserManualPage() {
                 <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Link to="/">
-                            <img src="/logoconvo.png" alt="Logo" className="h-8 w-auto object-contain" />
+                            <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-8 w-auto object-contain" />
                         </Link>
                         <div className="border-l border-gray-200 pl-3">
                             <span className="font-semibold text-gray-900 text-sm tracking-wide uppercase">Manual</span>

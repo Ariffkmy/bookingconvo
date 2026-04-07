@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Camera, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -45,10 +45,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <Camera size={28} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">GradSnap</h1>
+          <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-12 w-auto object-contain mx-auto mb-3" />
           <p className="text-sm text-gray-500 mt-1">Photographer Portal</p>
         </div>
 

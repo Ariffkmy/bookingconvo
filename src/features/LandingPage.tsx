@@ -50,7 +50,7 @@ export function LandingPage() {
         <header className="flex items-center justify-between w-full max-w-4xl px-4 py-3 bg-white/70 backdrop-blur-xl border border-gray-200/60 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] pointer-events-auto transition-all">
           <div className="flex items-center gap-2 pl-2">
             <Link to="/">
-              <img src="/logoconvo.png" alt="Logo" className="h-6 w-auto object-contain" />
+              <img src="/fotoconvologo.svg" alt="FotoConvo Logo" className="h-12 w-auto object-contain" />
             </Link>
           </div>
           <nav className="hidden md:flex items-center justify-center gap-8 ml-4">
