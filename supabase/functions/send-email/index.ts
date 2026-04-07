@@ -63,7 +63,7 @@ function baseLayout(content: string, previewText: string): string {
     <!-- Header -->
     <div style="text-align:center;margin-bottom:24px;">
       <div style="display:inline-block;background:#0284c7;border-radius:16px;padding:14px 24px;">
-        <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.5px;">GradSnap</span>
+        <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.5px;">Fotokonvo</span>
       </div>
     </div>
 
@@ -74,7 +74,7 @@ function baseLayout(content: string, previewText: string): string {
 
     <!-- Footer -->
     <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:24px;">
-      © ${new Date().getFullYear()} GradSnap · Graduation Photography Platform
+      © ${new Date().getFullYear()} Fotokonvo · Photography Booking Platform
     </p>
   </div>
 </body>
@@ -102,7 +102,7 @@ function greetingEmail(name: string): { subject: string; html: string } {
   const firstName = name.split(' ')[0]
   const html = baseLayout(`
     <div style="padding:32px;">
-      <h1 style="color:#0f172a;font-size:22px;font-weight:700;margin:0 0 8px;">Welcome to GradSnap, ${firstName}! 🎓</h1>
+      <h1 style="color:#0f172a;font-size:22px;font-weight:700;margin:0 0 8px;">Welcome to Fotokonvo, ${firstName}! 📷</h1>
       <p style="color:#64748b;font-size:15px;margin:0 0 24px;">Your photographer account is ready. Let's get your booking page set up!</p>
 
       <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:24px;">
@@ -116,19 +116,18 @@ function greetingEmail(name: string): { subject: string; html: string } {
       </div>
 
       <p style="color:#64748b;font-size:14px;margin:0 0 4px;">If you have any questions, just reply to this email — we're happy to help.</p>
-      <p style="color:#0f172a;font-size:14px;font-weight:600;">Welcome aboard, ${firstName}. Let's capture some memories. 📷</p>
+      <p style="color:#0f172a;font-size:14px;font-weight:600;">Welcome aboard, ${firstName}. Let's capture some memories. 🎞️</p>
     </div>
-  `, `Welcome to GradSnap, ${firstName}!`)
+  `, `Welcome to Fotokonvo, ${firstName}!`)
 
   return {
-    subject: `Welcome to GradSnap, ${firstName}! 🎓`,
+    subject: `Welcome to Fotokonvo, ${firstName}! 🎓`,
     html,
   }
 }
 
 function bookingConfirmationEmail(b: BookingInfo): { subject: string; html: string } {
-  const paymentUrl = `${Deno.env.get('APP_URL') ?? 'https://gradsnap.app'}/booking/${b.booking_code}/payment`
-  const trackingUrl = `${Deno.env.get('APP_URL') ?? 'https://gradsnap.app'}/booking/${b.booking_code}`
+  const trackingUrl = `${Deno.env.get('APP_URL') ?? 'https://fotokonvo.com'}/booking/${b.booking_code}`
 
   const html = baseLayout(`
     <div style="background:#0284c7;padding:24px 32px;">
@@ -137,7 +136,7 @@ function bookingConfirmationEmail(b: BookingInfo): { subject: string; html: stri
     </div>
 
     <div style="padding:24px 32px;">
-      <p style="color:#374151;font-size:15px;margin:0 0 20px;">Hi <strong>${b.customer_name}</strong>, your booking has been received! Please complete your payment to confirm the session.</p>
+      <p style="color:#374151;font-size:15px;margin:0 0 20px;">Hi <strong>${b.customer_name}</strong>, your booking has been received! We'll be in touch to confirm your session.</p>
 
       <div style="margin-bottom:24px;">
         ${b.package_name ? infoRow('Package', `${b.package_name}${b.package_price ? ' — ' + formatCurrency(b.package_price) : ''}`) : ''}
@@ -148,16 +147,7 @@ function bookingConfirmationEmail(b: BookingInfo): { subject: string; html: stri
         ${b.photographer_name ? infoRow('Photographer', b.photographer_name) : ''}
       </div>
 
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin-bottom:8px;">
-        <p style="color:#92400e;font-size:14px;font-weight:600;margin:0 0 4px;">⚠ Payment Required</p>
-        <p style="color:#78350f;font-size:14px;margin:0;">Your slot is reserved but not confirmed until payment is received. Please upload your payment receipt to proceed.</p>
-      </div>
-
-      ${primaryButton('Complete Payment →', paymentUrl)}
-
-      <p style="text-align:center;margin-top:12px;">
-        <a href="${trackingUrl}" style="color:#0284c7;font-size:13px;text-decoration:none;">Track booking status</a>
-      </p>
+      ${primaryButton('Track Booking', trackingUrl)}
     </div>
   `, `Booking ${b.booking_code} received`)
 
@@ -168,7 +158,7 @@ function bookingConfirmationEmail(b: BookingInfo): { subject: string; html: stri
 }
 
 function statusChangeEmail(b: BookingInfo, toStatus: string, note?: string): { subject: string; html: string } {
-  const trackingUrl = `${Deno.env.get('APP_URL') ?? 'https://gradsnap.app'}/booking/${b.booking_code}`
+  const trackingUrl = `${Deno.env.get('APP_URL') ?? 'https://fotokonvo.com'}/booking/${b.booking_code}`
 
   const statusConfig: Record<string, { label: string; color: string; bg: string; border: string; icon: string; body: string }> = {
     CONFIRMED: {
@@ -239,11 +229,11 @@ function statusChangeEmail(b: BookingInfo, toStatus: string, note?: string): { s
 
 // ─── Send via Resend ──────────────────────────────────────────────────────────
 
-async function sendViaResend(to: string, subject: string, html: string, fromName = 'GradSnap'): Promise<void> {
+async function sendViaResend(to: string, subject: string, html: string, fromName = 'Fotokonvo'): Promise<void> {
   const apiKey = Deno.env.get('RESEND_API_KEY')
   if (!apiKey) throw new Error('RESEND_API_KEY is not configured')
 
-  const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') ?? 'noreply@gradsnap.app'
+  const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') ?? 'noreply@fotokonvo.com'
 
   const res = await fetch(RESEND_API_URL, {
     method: 'POST',
