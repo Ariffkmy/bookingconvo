@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format, addDays, isBefore, startOfToday, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Clock, Users, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { sendBookingConfirmationEmail } from '../../lib/email'
 import { type Photographer, type Package, type BookingFormData, bookingFormSchema } from '../../types'
 import { formatCurrency, formatTime, generateBookingCode, generateTimeSlots, getSessionToken } from '../../lib/utils'
 import { Button } from '../../components/ui/Button'
@@ -213,21 +212,6 @@ export function BookPage() {
         from_status: null,
         to_status: 'PENDING_PAYMENT',
         note: 'Booking created by customer',
-      })
-
-      // Send booking confirmation email to customer
-      sendBookingConfirmationEmail({
-        booking_code: booking.booking_code,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email,
-        slot_date: data.slot_date,
-        slot_time: data.slot_time,
-        location: data.location,
-        package_name: pkg?.name,
-        package_price: pkg?.price,
-        pax_count: data.pax_count,
-        photographer_name: photographer!.display_name,
-        photographer_slug: photographer!.slug,
       })
 
       return booking
