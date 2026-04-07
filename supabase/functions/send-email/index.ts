@@ -157,7 +157,7 @@ function bookingConfirmationEmail(b: BookingInfo): { subject: string; html: stri
   }
 }
 
-function statusChangeEmail(b: BookingInfo, toStatus: string, note?: string): { subject: string; html: string } {
+function statusChangeEmail(b: BookingInfo, toStatus: string): { subject: string; html: string } {
   const trackingUrl = `${Deno.env.get('APP_URL') ?? 'https://fotokonvo.com'}/booking/${b.booking_code}`
 
   const statusConfig: Record<string, { label: string; color: string; bg: string; border: string; icon: string; body: string }> = {
@@ -210,12 +210,6 @@ function statusChangeEmail(b: BookingInfo, toStatus: string, note?: string): { s
         ${b.location ? infoRow('Location', b.location) : ''}
         ${b.photographer_name ? infoRow('Photographer', b.photographer_name) : ''}
       </div>
-
-      ${note ? `
-      <div style="background:#f8fafc;border-left:4px solid #0284c7;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:20px;">
-        <p style="color:#475569;font-size:13px;font-weight:600;margin:0 0 2px;">Note from photographer:</p>
-        <p style="color:#0f172a;font-size:14px;margin:0;">${note}</p>
-      </div>` : ''}
 
       ${toStatus === 'DELIVERED' && b.gallery_url ? primaryButton('View My Photos 📸', b.gallery_url) : primaryButton('Track Booking', trackingUrl)}
     </div>
@@ -277,7 +271,7 @@ serve(async (req) => {
       ;({ subject, html } = bookingConfirmationEmail(payload.booking))
     } else if (payload.type === 'status_change') {
       to = payload.booking.customer_email
-      ;({ subject, html } = statusChangeEmail(payload.booking, payload.to_status, payload.note))
+      ;({ subject, html } = statusChangeEmail(payload.booking, payload.to_status))
     } else {
       return new Response(JSON.stringify({ error: 'Unknown email type' }), {
         status: 400,
