@@ -6,7 +6,8 @@ import {
 } from 'date-fns'
 import {
   Search, Filter, Calendar, Clock, ChevronRight, LayoutList, CalendarDays,
-  ChevronLeft, ChevronRight as ChevronRightIcon,
+  ChevronLeft, ChevronRight as ChevronRightIcon, Table2,
+  ChevronsUpDown, ChevronUp, ChevronDown as ChevronDownIcon, X,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
@@ -50,7 +51,7 @@ export function BookingsPage() {
   const { photographerId } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
-  const [view, setView] = useState<'list' | 'calendar'>('list')
+  const [view, setView] = useState<'list' | 'calendar' | 'table'>('list')
 
   const statusFilter = searchParams.get('status') || ''
 
@@ -109,6 +110,17 @@ export function BookingsPage() {
             <CalendarDays size={13} />
             Calendar
           </button>
+          <button
+            onClick={() => setView('table')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              view === 'table'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Table2 size={13} />
+            Table
+          </button>
         </div>
       </div>
 
@@ -151,8 +163,10 @@ export function BookingsPage() {
         <SectionLoader />
       ) : view === 'list' ? (
         <ListView bookings={filtered} onClearFilters={() => { setSearch(''); setSearchParams({}) }} hasFilters={!!(search || statusFilter)} />
-      ) : (
+      ) : view === 'calendar' ? (
         <CalendarView bookings={filtered} />
+      ) : (
+        <TableView bookings={filtered} />
       )}
     </div>
   )
@@ -222,6 +236,248 @@ function BookingCard({ booking }: { booking: Booking }) {
         <ChevronRight size={16} className="text-gray-400 shrink-0 mt-1" />
       </div>
     </Link>
+  )
+}
+
+// ─── Table View ───────────────────────────────────────────────────────────────
+
+type SortCol = 'booking_code' | 'customer_name' | 'slot_date' | 'slot_time' | 'package' | 'status' | 'payment_amount'
+type SortDir = 'asc' | 'desc'
+
+interface ColFilters {
+  code: string
+  customer: string
+  date: string
+  package: string
+  status: string
+}
+
+function TableView({ bookings }: { bookings: Booking[] }) {
+  const navigate = useNavigate()
+  const [sort, setSort] = useState<{ col: SortCol; dir: SortDir }>({ col: 'slot_date', dir: 'asc' })
+  const [filters, setFilters] = useState<ColFilters>({ code: '', customer: '', date: '', package: '', status: '' })
+
+  const setFilter = (key: keyof ColFilters, val: string) =>
+    setFilters(f => ({ ...f, [key]: val }))
+
+  const clearFilters = () => setFilters({ code: '', customer: '', date: '', package: '', status: '' })
+
+  const hasColFilters = Object.values(filters).some(Boolean)
+
+  // Unique package names for dropdown
+  const packageOptions = Array.from(
+    new Set(bookings.map(b => (b.package as unknown as { name: string } | undefined)?.name).filter(Boolean))
+  ) as string[]
+
+  // Apply column-level filters
+  const filtered = bookings.filter(b => {
+    const pkg = (b.package as unknown as { name: string } | undefined)?.name ?? ''
+    if (filters.code && !b.booking_code.toLowerCase().includes(filters.code.toLowerCase())) return false
+    if (filters.customer && !b.customer_name.toLowerCase().includes(filters.customer.toLowerCase())) return false
+    if (filters.date && b.slot_date !== filters.date) return false
+    if (filters.package && pkg !== filters.package) return false
+    if (filters.status && b.status !== filters.status) return false
+    return true
+  })
+
+  // Sort
+  const sorted = [...filtered].sort((a, b) => {
+    let av: string | number = '', bv: string | number = ''
+    switch (sort.col) {
+      case 'booking_code':    av = a.booking_code;    bv = b.booking_code;    break
+      case 'customer_name':   av = a.customer_name;   bv = b.customer_name;   break
+      case 'slot_date':       av = a.slot_date;        bv = b.slot_date;       break
+      case 'slot_time':       av = a.slot_time;        bv = b.slot_time;       break
+      case 'package':
+        av = (a.package as unknown as { name: string } | undefined)?.name ?? ''
+        bv = (b.package as unknown as { name: string } | undefined)?.name ?? ''
+        break
+      case 'status':          av = a.status;           bv = b.status;          break
+      case 'payment_amount':  av = a.payment_amount ?? 0; bv = b.payment_amount ?? 0; break
+    }
+    if (av < bv) return sort.dir === 'asc' ? -1 : 1
+    if (av > bv) return sort.dir === 'asc' ? 1 : -1
+    return 0
+  })
+
+  const toggleSort = (col: SortCol) =>
+    setSort(s => s.col === col ? { col, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { col, dir: 'asc' })
+
+  function SortIcon({ col }: { col: SortCol }) {
+    if (sort.col !== col) return <ChevronsUpDown size={12} className="text-gray-300" />
+    return sort.dir === 'asc'
+      ? <ChevronUp size={12} className="text-sky-500" />
+      : <ChevronDownIcon size={12} className="text-sky-500" />
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+      {/* Filter summary bar */}
+      {hasColFilters && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 border-b border-sky-100 text-xs text-sky-700">
+          <Filter size={12} />
+          <span>{sorted.length} of {bookings.length} bookings shown</span>
+          <button onClick={clearFilters} className="ml-auto flex items-center gap-1 hover:text-sky-900">
+            <X size={11} /> Clear column filters
+          </button>
+        </div>
+      )}
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            {/* Column headers (sortable) */}
+            <tr className="border-b border-gray-100 bg-gray-50">
+              <Th col="booking_code" onSort={toggleSort}>
+                Code <SortIcon col="booking_code" />
+              </Th>
+              <Th col="customer_name" onSort={toggleSort}>
+                Customer <SortIcon col="customer_name" />
+              </Th>
+              <Th col="slot_date" onSort={toggleSort}>
+                Date <SortIcon col="slot_date" />
+              </Th>
+              <Th col="slot_time" onSort={toggleSort}>
+                Time <SortIcon col="slot_time" />
+              </Th>
+              <Th col="package" onSort={toggleSort}>
+                Package <SortIcon col="package" />
+              </Th>
+              <Th col="status" onSort={toggleSort}>
+                Status <SortIcon col="status" />
+              </Th>
+              <Th col="payment_amount" onSort={toggleSort}>
+                Amount <SortIcon col="payment_amount" />
+              </Th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap" />
+            </tr>
+
+            {/* Column filter row */}
+            <tr className="border-b border-gray-200 bg-white">
+              <td className="px-3 py-2">
+                <input
+                  value={filters.code}
+                  onChange={e => setFilter('code', e.target.value)}
+                  placeholder="Filter..."
+                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-400 placeholder:text-gray-300"
+                />
+              </td>
+              <td className="px-3 py-2">
+                <input
+                  value={filters.customer}
+                  onChange={e => setFilter('customer', e.target.value)}
+                  placeholder="Filter..."
+                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-400 placeholder:text-gray-300"
+                />
+              </td>
+              <td className="px-3 py-2">
+                <input
+                  type="date"
+                  value={filters.date}
+                  onChange={e => setFilter('date', e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-400 text-gray-600"
+                />
+              </td>
+              <td className="px-3 py-2" />
+              <td className="px-3 py-2">
+                <select
+                  value={filters.package}
+                  onChange={e => setFilter('package', e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-400 bg-white text-gray-600"
+                >
+                  <option value="">All</option>
+                  {packageOptions.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </td>
+              <td className="px-3 py-2">
+                <select
+                  value={filters.status}
+                  onChange={e => setFilter('status', e.target.value)}
+                  className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-sky-400 bg-white text-gray-600"
+                >
+                  <option value="">All</option>
+                  {STATUS_FILTERS.filter(f => f.value).map(f => (
+                    <option key={f.value} value={f.value}>{f.label}</option>
+                  ))}
+                </select>
+              </td>
+              <td className="px-3 py-2" />
+              <td className="px-3 py-2" />
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-50">
+            {sorted.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center py-12 text-gray-400 text-sm">
+                  <Filter size={20} className="mx-auto mb-2 text-gray-200" />
+                  No bookings match the filters
+                </td>
+              </tr>
+            ) : (
+              sorted.map((b, idx) => {
+                const pkg = (b.package as unknown as { name: string } | undefined)?.name
+                return (
+                  <tr
+                    key={b.id}
+                    onClick={() => navigate(`/portal/bookings/${b.id}`)}
+                    className={`cursor-pointer transition-colors hover:bg-sky-50 ${idx % 2 === 0 ? '' : 'bg-gray-50/50'}`}
+                  >
+                    <td className="px-3 py-3 font-mono text-xs text-gray-500">{b.booking_code}</td>
+                    <td className="px-3 py-3 font-medium text-gray-900 whitespace-nowrap">{b.customer_name}</td>
+                    <td className="px-3 py-3 text-gray-600 whitespace-nowrap">
+                      {format(parseISO(b.slot_date), 'dd MMM yyyy')}
+                    </td>
+                    <td className="px-3 py-3 text-gray-600 whitespace-nowrap">{formatTime(b.slot_time)}</td>
+                    <td className="px-3 py-3 text-sky-700 text-xs font-medium whitespace-nowrap">{pkg ?? '—'}</td>
+                    <td className="px-3 py-3">
+                      <BookingStatusBadge status={b.status} size="sm" />
+                    </td>
+                    <td className="px-3 py-3 text-gray-700 font-medium whitespace-nowrap">
+                      {b.payment_amount ? `RM ${Number(b.payment_amount).toFixed(2)}` : '—'}
+                    </td>
+                    <td className="px-3 py-3">
+                      <ChevronRight size={14} className="text-gray-300" />
+                    </td>
+                  </tr>
+                )
+              })
+            )}
+          </tbody>
+
+          {sorted.length > 0 && (
+            <tfoot>
+              <tr className="border-t border-gray-100 bg-gray-50">
+                <td colSpan={6} className="px-3 py-2 text-xs text-gray-400">
+                  {sorted.length} booking{sorted.length !== 1 ? 's' : ''}
+                </td>
+                <td className="px-3 py-2 text-xs font-semibold text-gray-700">
+                  RM {sorted.reduce((sum, b) => sum + Number(b.payment_amount ?? 0), 0).toFixed(2)}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function Th({
+  col, onSort, children,
+}: {
+  col: SortCol
+  onSort: (col: SortCol) => void
+  children: React.ReactNode
+}) {
+  return (
+    <th
+      onClick={() => onSort(col)}
+      className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap cursor-pointer hover:text-gray-800 select-none"
+    >
+      <div className="flex items-center gap-1">{children}</div>
+    </th>
   )
 }
 
