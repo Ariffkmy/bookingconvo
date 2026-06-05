@@ -64,19 +64,13 @@ export function BookingDetailPage() {
 
   const statusMutation = useMutation({
     mutationFn: async ({ toStatus, note }: { toStatus: BookingStatus; note?: string }) => {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: toStatus, updated_at: new Date().toISOString() })
-        .eq('id', id)
-
-      if (error) throw error
-
-      await supabase.from('booking_status_history').insert({
-        booking_id: id,
-        from_status: booking?.status,
-        to_status: toStatus,
-        note: note || null,
+      const { error } = await supabase.rpc('update_booking_status', {
+        p_booking_id: id,
+        p_new_status: toStatus,
+        p_note: note || null,
+        p_gallery_url: null,
       })
+      if (error) throw error
     },
     onSuccess: (_data, { toStatus, note }) => {
       if (booking) {
@@ -117,17 +111,13 @@ export function BookingDetailPage() {
 
   const deliveryMutation = useMutation({
     mutationFn: async (url: string) => {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ gallery_url: url, status: 'DELIVERED' })
-        .eq('id', id)
-      if (error) throw error
-      await supabase.from('booking_status_history').insert({
-        booking_id: id,
-        from_status: booking?.status,
-        to_status: 'DELIVERED',
-        note: 'Gallery delivered to customer',
+      const { error } = await supabase.rpc('update_booking_status', {
+        p_booking_id: id,
+        p_new_status: 'DELIVERED',
+        p_note: 'Gallery delivered to customer',
+        p_gallery_url: url,
       })
+      if (error) throw error
     },
     onSuccess: (_data, galleryUrl) => {
       if (booking) {
@@ -152,17 +142,14 @@ export function BookingDetailPage() {
 
   const rescheduleMutation = useMutation({
     mutationFn: async ({ newDate, newTime, note }: { newDate: string; newTime: string; note?: string }) => {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ slot_date: newDate, slot_time: newTime, status: 'RESCHEDULED', updated_at: new Date().toISOString() })
-        .eq('id', id)
-      if (error) throw error
-      await supabase.from('booking_status_history').insert({
-        booking_id: id,
-        from_status: booking?.status,
-        to_status: 'RESCHEDULED',
-        note: note || null,
+      const { error } = await supabase.rpc('reschedule_booking_with_conflict_check', {
+        p_booking_id: id,
+        p_new_date: newDate,
+        p_new_time: newTime,
+        p_new_status: 'RESCHEDULED',
+        p_note: note || null,
       })
+      if (error) throw error
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['booking-detail', id] })
