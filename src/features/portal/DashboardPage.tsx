@@ -5,7 +5,7 @@ import { Calendar, Clock, CheckCircle, TrendingUp, ArrowRight, Camera } from 'lu
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking } from '../../types'
-import { formatTime } from '../../lib/utils'
+import { formatTime, formatCurrency } from '../../lib/utils'
 import { BookingStatusBadge } from '../../components/ui/Badge'
 import { SectionLoader } from '../../components/ui/Spinner'
 
@@ -43,6 +43,15 @@ export function DashboardPage() {
     b.slot_date >= monthStart && b.slot_date <= monthEnd && b.status !== 'CANCELLED'
   ).length
 
+  // New stats
+  const totalBookings = bookings.filter(b => b.status !== 'CANCELLED').length
+  const totalRevenue = bookings
+    .filter(b => b.status !== 'CANCELLED' && b.status !== 'PENDING_PAYMENT')
+    .reduce((sum, b) => {
+      const pkg = b.package as { price: number } | undefined
+      return sum + (b.payment_amount || pkg?.price || 0)
+    }, 0)
+
   return (
     <div>
       <div className="mb-6">
@@ -51,12 +60,18 @@ export function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6">
         <StatCard
           label="Today's Sessions"
           value={todayBookings.length}
           icon={<Camera size={18} className="text-sky-600" />}
           bg="bg-sky-50"
+        />
+        <StatCard
+          label="Total Bookings"
+          value={totalBookings}
+          icon={<TrendingUp size={18} className="text-indigo-600" />}
+          bg="bg-indigo-50"
         />
         <StatCard
           label="Awaiting Payment"
@@ -67,8 +82,14 @@ export function DashboardPage() {
         <StatCard
           label="This Month"
           value={thisMonthTotal}
-          icon={<TrendingUp size={18} className="text-green-600" />}
+          icon={<Calendar size={18} className="text-green-600" />}
           bg="bg-green-50"
+        />
+        <StatCard
+          label="Total Revenue"
+          value={formatCurrency(totalRevenue)}
+          icon={<TrendingUp size={18} className="text-emerald-600" />}
+          bg="bg-emerald-50"
         />
       </div>
 
@@ -124,7 +145,7 @@ export function DashboardPage() {
 function StatCard({
   label, value, icon, bg, urgent, linkTo
 }: {
-  label: string; value: number; icon: React.ReactNode; bg: string; urgent?: boolean; linkTo?: string
+  label: string; value: number | string; icon: React.ReactNode; bg: string; urgent?: boolean; linkTo?: string
 }) {
   const content = (
     <div className={`${bg} rounded-2xl p-3.5 border ${urgent ? 'border-amber-300' : 'border-transparent'}`}>
