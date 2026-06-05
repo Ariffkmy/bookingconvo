@@ -7,8 +7,12 @@ export default {
   theme: {
     extend: {
       fontSize: {
-        'base': ['1.05rem', '1.65rem'],
-        'lg': ['1.2rem', '1.85rem'],
+        'xs': ['0.8rem', '1.2rem'],
+        'sm': ['0.9rem', '1.4rem'],
+        'base': ['1.1rem', '1.7rem'],
+        'lg': ['1.25rem', '1.9rem'],
+        'xl': ['1.4rem', '2rem'],
+        '2xl': ['1.6rem', '2.2rem'],
         '7xl': ['4.5rem', '1'],
         '8xl': ['6rem', '1'],
       },
