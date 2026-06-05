@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format, addDays, isBefore, startOfToday, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Clock, Users, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { createBookingWithGuard } from '../../lib/bookingService'
 import { sendBookingConfirmationEmail } from '../../lib/email'
 import { type Photographer, type Package, type BookingFormData, bookingFormSchema } from '../../types'
 import { formatCurrency, formatTime, generateBookingCode, generateTimeSlots, getSessionToken } from '../../lib/utils'
@@ -89,11 +90,14 @@ export function BookPage() {
       const sessionToken = getSessionToken()
       const { data } = await supabase
         .from('timeslot_locks')
-        .select('slot_time, session_token')
+        .select('slot_time, duration_mins, session_token')
         .eq('photographer_id', photographer!.id)
         .eq('slot_date', selectedDate)
         .gt('expires_at', now)
-      return (data || []).filter(l => l.session_token !== sessionToken).map(l => l.slot_time as string)
+      return (data || []).filter(l => l.session_token !== sessionToken).map(l => ({
+        slot_time: l.slot_time as string,
+        duration_mins: (l.duration_mins as number) || 60,
+      }))
     },
     enabled: !!photographer?.id && !!selectedDate,
     refetchInterval: 30000,
@@ -102,15 +106,14 @@ export function BookPage() {
   const { data: bookedSlots = [] } = useQuery({
     queryKey: ['booked-slots', photographer?.id, selectedDate],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('bookings')
-        .select('slot_time')
-        .eq('photographer_id', photographer!.id)
-        .eq('slot_date', selectedDate)
-        .not('status', 'eq', 'CANCELLED')
-      return (data || []).map(b => b.slot_time as string)
+      const { data } = await supabase.rpc('get_booked_slots', {
+        p_photographer_id: photographer!.id,
+        p_date: selectedDate,
+      })
+      return (data || []) as { slot_time: string; duration_mins: number }[]
     },
     enabled: !!photographer?.id && !!selectedDate,
+    refetchInterval: 30000,
   })
 
   const { lockSlot, releaseLock, lockedDate, lockedTime, secondsRemaining, isLocking, lockError } = useTimeslotLock(
@@ -151,7 +154,30 @@ export function BookPage() {
 
     const duration = selectedPackage?.duration_mins || 60
     const slots = generateTimeSlots(startTime, endTime, duration)
-    return slots.filter(s => !bookedSlots.includes(s) && !lockedSlots.includes(s))
+
+    const toMinutes = (t: string) => {
+      const [h, m] = t.split(':').map(Number)
+      return h * 60 + m
+    }
+
+    return slots.filter(s => {
+      const candidateStart = toMinutes(s)
+      // Check against locked slots (duration-aware overlap)
+      for (const locked of lockedSlots) {
+        const lockedStart = toMinutes(locked.slot_time)
+        if (candidateStart < lockedStart + locked.duration_mins && candidateStart + duration > lockedStart) {
+          return false
+        }
+      }
+      // Check against booked slots (duration-aware overlap)
+      for (const booked of bookedSlots) {
+        const bookedStart = toMinutes(booked.slot_time)
+        if (candidateStart < bookedStart + booked.duration_mins && candidateStart + duration > bookedStart) {
+          return false
+        }
+      }
+      return true
+    })
   }
 
   const availableSlots = getAvailableSlotsForDate(selectedDate)
@@ -179,41 +205,28 @@ export function BookPage() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
+      setSubmitError('')
       const bookingCode = generateBookingCode()
       const pkg = packages.find(p => p.id === data.package_id)
 
-      const { data: booking, error } = await supabase
-        .from('bookings')
-        .insert({
-          booking_code: bookingCode,
-          photographer_id: photographer!.id,
-          package_id: data.package_id,
-          customer_name: data.customer_name,
-          customer_email: data.customer_email,
-          customer_phone: data.customer_phone,
-          slot_date: data.slot_date,
-          slot_time: data.slot_time,
-          pax_count: data.pax_count,
-          location: data.location,
-          special_requests: data.special_requests || null,
-          status: 'PENDING_PAYMENT',
-          payment_amount: pkg?.price || null,
-        })
-        .select()
-        .single()
-
-      if (error) throw error
+      // Atomic booking creation with DB-level conflict check
+      const booking = await createBookingWithGuard({
+        booking_code: bookingCode,
+        photographer_id: photographer!.id,
+        package_id: data.package_id,
+        customer_name: data.customer_name,
+        customer_email: data.customer_email,
+        customer_phone: data.customer_phone,
+        slot_date: data.slot_date,
+        slot_time: data.slot_time,
+        pax_count: data.pax_count,
+        location: data.location,
+        special_requests: data.special_requests || null,
+        payment_amount: pkg?.price || null,
+      })
 
       // Release the timeslot lock - booking is now confirmed as pending
       await releaseLock()
-
-      // Insert status history
-      await supabase.from('booking_status_history').insert({
-        booking_id: booking.id,
-        from_status: null,
-        to_status: 'PENDING_PAYMENT',
-        note: 'Booking created by customer',
-      })
 
       // Send booking confirmation email to customer
       sendBookingConfirmationEmail({

@@ -11,7 +11,7 @@ interface TimeslotLockState {
   lockError: string | null
 }
 
-export function useTimeslotLock(photographerId: string | null, lockDurationMins = 10) {
+export function useTimeslotLock(photographerId: string | null, lockDurationMins = 10, bookingDurationMins = 60) {
   const [state, setState] = useState<TimeslotLockState>({
     lockedDate: null,
     lockedTime: null,
@@ -71,63 +71,31 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
     setState(prev => ({ ...prev, isLocking: true, lockError: null }))
 
     try {
-      // Check if slot is still available (no active lock by others)
-      const now = new Date().toISOString()
+      // Use atomic RPC with rate limiting + duration-aware overlap checking
+      const { data: lock, error } = await supabase.rpc('acquire_timeslot_lock', {
+        p_photographer_id: photographerId,
+        p_slot_date: date,
+        p_slot_time: time,
+        p_session_token: sessionToken,
+        p_lock_duration_mins: lockDurationMins,
+        p_booking_duration_mins: bookingDurationMins,
+      })
 
-      const { data: existing } = await supabase
-        .from('timeslot_locks')
-        .select('id, session_token')
-        .eq('photographer_id', photographerId)
-        .eq('slot_date', date)
-        .eq('slot_time', time)
-        .gt('expires_at', now)
-        .maybeSingle()
-
-      if (existing && existing.session_token !== sessionToken) {
-        setState(prev => ({
-          ...prev,
-          isLocking: false,
-          lockError: 'This slot was just taken. Please choose another.',
-        }))
-        return false
-      }
-
-      // Also check if slot is already booked
-      const { data: booked } = await supabase
-        .from('bookings')
-        .select('id')
-        .eq('photographer_id', photographerId)
-        .eq('slot_date', date)
-        .eq('slot_time', time)
-        .not('status', 'eq', 'CANCELLED')
-        .maybeSingle()
-
-      if (booked) {
-        setState(prev => ({
-          ...prev,
-          isLocking: false,
-          lockError: 'This slot is already booked.',
-        }))
+      if (error) {
+        const msg = error.message || ''
+        if (msg.includes('Too many lock attempts') || msg.includes('Too many active locks')) {
+          setState(prev => ({ ...prev, isLocking: false, lockError: msg }))
+        } else if (msg.includes('already booked') || msg.includes('already taken')) {
+          setState(prev => ({ ...prev, isLocking: false, lockError: 'This slot is already taken. Please choose another.' }))
+        } else {
+          setState(prev => ({ ...prev, isLocking: false, lockError: 'Failed to reserve slot. Please try again.' }))
+        }
         return false
       }
 
       const expiresAt = new Date(Date.now() + lockDurationMins * 60 * 1000)
-
-      const { data: lock, error } = await supabase
-        .from('timeslot_locks')
-        .insert({
-          photographer_id: photographerId,
-          slot_date: date,
-          slot_time: time,
-          session_token: sessionToken,
-          expires_at: expiresAt.toISOString(),
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-
       lockIdRef.current = lock.id
+
       setState({
         lockedDate: date,
         lockedTime: time,
@@ -146,7 +114,7 @@ export function useTimeslotLock(photographerId: string | null, lockDurationMins 
       }))
       return false
     }
-  }, [photographerId, lockDurationMins])
+  }, [photographerId, lockDurationMins, bookingDurationMins, sessionToken, releaseLockById])
 
   const releaseLock = useCallback(async () => {
     if (lockIdRef.current) {

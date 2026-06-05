@@ -87,22 +87,13 @@ export function PaymentPage() {
 
       const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
 
-      const { error: updateError } = await supabase
-        .from('bookings')
-        .update({
-          receipt_url: urlData.publicUrl,
-          receipt_uploaded_at: new Date().toISOString(),
-          status: 'CONFIRMED',
-        })
-        .eq('booking_code', booking.booking_code)
-      if (updateError) throw updateError
-
-      await supabase.from('booking_status_history').insert({
-        booking_id: booking.id,
-        from_status: 'PENDING_PAYMENT',
-        to_status: 'CONFIRMED',
-        note: 'Payment receipt uploaded by customer',
+      // Use secure RPC that verifies email ownership
+      const { error: rpcError } = await supabase.rpc('submit_receipt', {
+        p_booking_code: booking.booking_code,
+        p_customer_email: booking.customer_email,
+        p_receipt_url: urlData.publicUrl,
       })
+      if (rpcError) throw rpcError
 
       return urlData.publicUrl
     },
