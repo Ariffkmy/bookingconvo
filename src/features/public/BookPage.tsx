@@ -7,7 +7,6 @@ import { format, addDays, isBefore, startOfToday, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Clock, Users, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { createBookingWithGuard } from '../../lib/bookingService'
-import { sendBookingConfirmationEmail } from '../../lib/email'
 import { type Photographer, type Package, type BookingFormData, bookingFormSchema } from '../../types'
 import { formatCurrency, formatTime, generateBookingCode, generateTimeSlots, getSessionToken } from '../../lib/utils'
 import { Button } from '../../components/ui/Button'
@@ -22,6 +21,7 @@ export function BookPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<'slot' | 'details'>('slot')
   const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedSlotTime, setSelectedSlotTime] = useState<string>('')
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const [submitError, setSubmitError] = useState('')
 
@@ -193,12 +193,18 @@ export function BookPage() {
     return availabilityRules.some(r => r.day_of_week === dayOfWeek)
   }
 
-  const handleSlotSelect = async (time: string) => {
-    if (!selectedDate || isLocking) return
-    const success = await lockSlot(selectedDate, time)
+  const handleSlotSelect = (time: string) => {
+    if (isLocking) return
+    setSelectedSlotTime(selectedSlotTime === time ? '' : time)
+  }
+
+  const handleSlotNext = async () => {
+    if (!selectedDate || !selectedSlotTime || isLocking) return
+    const success = await lockSlot(selectedDate, selectedSlotTime)
     if (success) {
       form.setValue('slot_date', selectedDate)
-      form.setValue('slot_time', time)
+      form.setValue('slot_time', selectedSlotTime)
+      setSelectedSlotTime('')
       setStep('details')
     }
   }
@@ -227,21 +233,6 @@ export function BookPage() {
 
       // Release the timeslot lock - booking is now confirmed as pending
       await releaseLock()
-
-      // Send booking confirmation email to customer
-      sendBookingConfirmationEmail({
-        booking_code: booking.booking_code,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email,
-        slot_date: data.slot_date,
-        slot_time: data.slot_time,
-        location: data.location,
-        package_name: pkg?.name,
-        package_price: pkg?.price,
-        pax_count: data.pax_count,
-        photographer_name: photographer!.display_name,
-        photographer_slug: photographer!.slug,
-      })
 
       return booking
     },
@@ -295,14 +286,16 @@ export function BookPage() {
         <SlotStep
           packages={packages}
           selectedPackageId={selectedPackageId}
-          onPackageChange={(id) => form.setValue('package_id', id)}
+          onPackageChange={(id) => { form.setValue('package_id', id); setSelectedSlotTime('') }}
           selectedDate={selectedDate}
-          onDateSelect={setSelectedDate}
+          onDateSelect={(d) => { setSelectedDate(d); setSelectedSlotTime('') }}
           calendarMonth={calendarMonth}
           onMonthChange={setCalendarMonth}
           isDateAvailable={isDateAvailable}
           availableSlots={availableSlots}
+          selectedSlotTime={selectedSlotTime}
           onSlotSelect={handleSlotSelect}
+          onNext={handleSlotNext}
           isLocking={isLocking}
           lockError={lockError}
         />
@@ -339,7 +332,9 @@ interface SlotStepProps {
   onMonthChange: (d: Date) => void
   isDateAvailable: (d: Date) => boolean
   availableSlots: string[]
+  selectedSlotTime: string
   onSlotSelect: (t: string) => void
+  onNext: () => void
   isLocking: boolean
   lockError: string | null
 }
@@ -347,7 +342,7 @@ interface SlotStepProps {
 function SlotStep({
   packages, selectedPackageId, onPackageChange,
   selectedDate, onDateSelect, calendarMonth, onMonthChange,
-  isDateAvailable, availableSlots, onSlotSelect, isLocking, lockError
+  isDateAvailable, availableSlots, selectedSlotTime, onSlotSelect, onNext, isLocking, lockError
 }: SlotStepProps) {
   const today = startOfToday()
   const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
@@ -495,13 +490,30 @@ function SlotStep({
                   type="button"
                   onClick={() => onSlotSelect(time)}
                   disabled={isLocking}
-                  className="py-2.5 px-2 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700 transition-all active:scale-95 disabled:opacity-50"
+                  className={`py-2.5 px-2 rounded-xl border-2 text-sm font-medium transition-all active:scale-95 disabled:opacity-50 ${
+                    selectedSlotTime === time
+                      ? 'border-sky-500 bg-sky-50 text-sky-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700'
+                  }`}
                 >
                   {formatTime(time)}
                 </button>
               ))}
             </div>
           )}
+
+          {/* Next Button */}
+          <div className="pt-4">
+            <Button
+              fullWidth
+              size="lg"
+              onClick={onNext}
+              disabled={!selectedSlotTime || isLocking}
+              loading={isLocking}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>
