@@ -76,6 +76,7 @@ interface CreateBookingParams {
   location: string
   special_requests: string | null
   payment_amount: number | null
+  affiliate_code?: string | null
 }
 
 export async function createBookingWithGuard(
@@ -114,6 +115,14 @@ export async function createBookingWithGuard(
       throw new Error('This timeslot was just booked by someone else. Please choose a different time.')
     }
     throw new Error(error.message || 'Failed to create booking.')
+  }
+
+  // Attach affiliate code if present (non-blocking metadata)
+  if (params.affiliate_code && data) {
+    await supabase
+      .from('bookings')
+      .update({ affiliate_code: params.affiliate_code })
+      .eq('id', data)
   }
 
   return data as Booking

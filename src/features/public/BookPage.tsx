@@ -19,6 +19,9 @@ export function BookPage() {
   const { slug } = useParams<{ slug: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  // Affiliate tracking: prefer URL param, fall back to sessionStorage
+  const affiliateCode = searchParams.get('ref') || sessionStorage.getItem('affiliate_ref') || null
   const [step, setStep] = useState<'slot' | 'details'>('slot')
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [selectedSlotTime, setSelectedSlotTime] = useState<string>('')
@@ -229,7 +232,11 @@ export function BookPage() {
         location: data.location,
         special_requests: data.special_requests || null,
         payment_amount: pkg?.price || null,
+        affiliate_code: affiliateCode,
       })
+
+      // Clear affiliate ref after successful booking
+      sessionStorage.removeItem('affiliate_ref')
 
       // Release the timeslot lock - booking is now confirmed as pending
       await releaseLock()

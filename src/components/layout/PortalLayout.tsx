@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, CalendarDays, Package, Image,
-  Settings, Menu, X, LogOut, BookOpen
+  Settings, Menu, X, LogOut, BookOpen, Link2
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
@@ -13,26 +13,18 @@ const NAV_ITEMS = [
   { to: '/portal/availability', icon: CalendarDays, label: 'Availability' },
   { to: '/portal/packages', icon: Package, label: 'Packages' },
   { to: '/portal/gallery', icon: Image, label: 'Gallery' },
+  { to: '/portal/affiliates', icon: Link2, label: 'Affiliate' },
   { to: '/portal/settings', icon: Settings, label: 'Settings' },
 ]
 
-export function PortalLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { signOut, user } = useAuth()
-  const navigate = useNavigate()
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/portal/login')
-  }
-
-  const NavItems = () => (
+function NavItems({ onClose }: { onClose?: () => void }) {
+  return (
     <>
       {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
         <NavLink
           key={to}
           to={to}
-          onClick={() => setSidebarOpen(false)}
+          onClick={onClose}
           className={({ isActive }) => cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
             isActive
@@ -46,6 +38,17 @@ export function PortalLayout() {
       ))}
     </>
   )
+}
+
+export function PortalLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { signOut, user } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/portal/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -98,7 +101,7 @@ export function PortalLayout() {
               </button>
             </div>
             <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-              <NavItems />
+              <NavItems onClose={() => setSidebarOpen(false)} />
             </nav>
             <div className="p-3 border-t border-gray-100">
               <button
