@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { format, startOfMonth, endOfMonth, isToday, parseISO } from 'date-fns'
-import { Calendar, Clock, CheckCircle, TrendingUp, ArrowRight, Camera } from 'lucide-react'
+import { Calendar, Clock, CheckCircle, TrendingUp, ArrowRight, Camera, BookOpen, DollarSign } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking } from '../../types'
@@ -43,6 +43,11 @@ export function DashboardPage() {
     b.slot_date >= monthStart && b.slot_date <= monthEnd && b.status !== 'CANCELLED'
   ).length
 
+  const totalBookings = bookings.filter(b => b.status !== 'CANCELLED').length
+  const totalRevenue = bookings
+    .filter(b => ['CONFIRMED', 'COMPLETED', 'DELIVERED'].includes(b.status))
+    .reduce((sum, b) => sum + (b.payment_amount || 0), 0)
+
   return (
     <div>
       <div className="mb-6">
@@ -51,7 +56,7 @@ export function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
         <StatCard
           label="Today's Sessions"
           value={todayBookings.length}
@@ -69,6 +74,18 @@ export function DashboardPage() {
           value={thisMonthTotal}
           icon={<TrendingUp size={18} className="text-green-600" />}
           bg="bg-green-50"
+        />
+        <StatCard
+          label="Total Bookings"
+          value={totalBookings}
+          icon={<BookOpen size={18} className="text-indigo-600" />}
+          bg="bg-indigo-50"
+        />
+        <StatCard
+          label="Total Revenue"
+          value={`RM ${totalRevenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`}
+          icon={<DollarSign size={18} className="text-emerald-600" />}
+          bg="bg-emerald-50"
         />
       </div>
 
@@ -124,7 +141,7 @@ export function DashboardPage() {
 function StatCard({
   label, value, icon, bg, urgent, linkTo
 }: {
-  label: string; value: number; icon: React.ReactNode; bg: string; urgent?: boolean; linkTo?: string
+  label: string; value: number | string; icon: React.ReactNode; bg: string; urgent?: boolean; linkTo?: string
 }) {
   const content = (
     <div className={`${bg} rounded-2xl p-3.5 border ${urgent ? 'border-amber-300' : 'border-transparent'}`}>
