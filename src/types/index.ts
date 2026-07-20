@@ -141,6 +141,7 @@ export interface Booking {
   verified_at: string | null
   notes: string | null
   gallery_url: string | null
+  affiliate_code: string | null
   created_at: string
   updated_at: string
   // Joined
@@ -155,6 +156,14 @@ export interface BookingStatusHistory {
   to_status: BookingStatus
   changed_by: string | null
   note: string | null
+  created_at: string
+}
+
+export interface Affiliate {
+  id: string
+  name: string
+  code: string
+  is_active: boolean
   created_at: string
 }
 

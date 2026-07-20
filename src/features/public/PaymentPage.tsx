@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import { Upload, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { sendStatusChangeEmail } from '../../lib/email'
+import { sendBookingConfirmationEmail } from '../../lib/email'
 import { type Booking, type Photographer, type Package } from '../../types'
 import { formatCurrency, formatTime } from '../../lib/utils'
 import { Button } from '../../components/ui/Button'
@@ -87,39 +87,31 @@ export function PaymentPage() {
 
       const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(path)
 
-      const { error: updateError } = await supabase
-        .from('bookings')
-        .update({
-          receipt_url: urlData.publicUrl,
-          receipt_uploaded_at: new Date().toISOString(),
-          status: 'CONFIRMED',
-        })
-        .eq('booking_code', booking.booking_code)
-      if (updateError) throw updateError
-
-      await supabase.from('booking_status_history').insert({
-        booking_id: booking.id,
-        from_status: 'PENDING_PAYMENT',
-        to_status: 'CONFIRMED',
-        note: 'Payment receipt uploaded by customer',
+      // Use secure RPC that verifies email ownership
+      const { error: rpcError } = await supabase.rpc('submit_receipt', {
+        p_booking_code: booking.booking_code,
+        p_customer_email: booking.customer_email,
+        p_receipt_url: urlData.publicUrl,
       })
+      if (rpcError) throw rpcError
 
       return urlData.publicUrl
     },
     onSuccess: () => {
-      if (booking) {
-        sendStatusChangeEmail(
-          {
-            booking_code: booking.booking_code,
-            customer_name: booking.customer_name,
-            customer_email: booking.customer_email,
-            slot_date: booking.slot_date,
-            slot_time: booking.slot_time,
-            location: booking.location,
-          },
-          'CONFIRMED',
-          'Your payment receipt has been received and your booking is now confirmed.',
-        )
+      if (booking && photographer && pkg) {
+        sendBookingConfirmationEmail({
+          booking_code: booking.booking_code,
+          customer_name: booking.customer_name,
+          customer_email: booking.customer_email,
+          slot_date: booking.slot_date,
+          slot_time: booking.slot_time,
+          location: booking.location,
+          package_name: pkg.name,
+          package_price: pkg.price,
+          pax_count: booking.pax_count,
+          photographer_name: photographer.display_name,
+          photographer_slug: photographer.slug,
+        })
       }
       qc.invalidateQueries({ queryKey: ['booking', bookingCode] })
       navigate(`/booking/${bookingCode}`)

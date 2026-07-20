@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format, addDays, isBefore, startOfToday, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Clock, Users, CheckCircle, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { sendBookingConfirmationEmail } from '../../lib/email'
+import { createBookingWithGuard } from '../../lib/bookingService'
 import { type Photographer, type Package, type BookingFormData, bookingFormSchema } from '../../types'
 import { formatCurrency, formatTime, generateBookingCode, generateTimeSlots, getSessionToken } from '../../lib/utils'
 import { Button } from '../../components/ui/Button'
@@ -19,8 +19,12 @@ export function BookPage() {
   const { slug } = useParams<{ slug: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  // Affiliate tracking: prefer URL param, fall back to sessionStorage
+  const affiliateCode = searchParams.get('ref') || sessionStorage.getItem('affiliate_ref') || null
   const [step, setStep] = useState<'slot' | 'details'>('slot')
   const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedSlotTime, setSelectedSlotTime] = useState<string>('')
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const [submitError, setSubmitError] = useState('')
 
@@ -89,11 +93,14 @@ export function BookPage() {
       const sessionToken = getSessionToken()
       const { data } = await supabase
         .from('timeslot_locks')
-        .select('slot_time, session_token')
+        .select('slot_time, duration_mins, session_token')
         .eq('photographer_id', photographer!.id)
         .eq('slot_date', selectedDate)
         .gt('expires_at', now)
-      return (data || []).filter(l => l.session_token !== sessionToken).map(l => l.slot_time as string)
+      return (data || []).filter(l => l.session_token !== sessionToken).map(l => ({
+        slot_time: l.slot_time as string,
+        duration_mins: (l.duration_mins as number) || 60,
+      }))
     },
     enabled: !!photographer?.id && !!selectedDate,
     refetchInterval: 30000,
@@ -102,15 +109,14 @@ export function BookPage() {
   const { data: bookedSlots = [] } = useQuery({
     queryKey: ['booked-slots', photographer?.id, selectedDate],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('bookings')
-        .select('slot_time')
-        .eq('photographer_id', photographer!.id)
-        .eq('slot_date', selectedDate)
-        .not('status', 'eq', 'CANCELLED')
-      return (data || []).map(b => b.slot_time as string)
+      const { data } = await supabase.rpc('get_booked_slots', {
+        p_photographer_id: photographer!.id,
+        p_date: selectedDate,
+      })
+      return (data || []) as { slot_time: string; duration_mins: number }[]
     },
     enabled: !!photographer?.id && !!selectedDate,
+    refetchInterval: 30000,
   })
 
   const { lockSlot, releaseLock, lockedDate, lockedTime, secondsRemaining, isLocking, lockError } = useTimeslotLock(
@@ -151,7 +157,30 @@ export function BookPage() {
 
     const duration = selectedPackage?.duration_mins || 60
     const slots = generateTimeSlots(startTime, endTime, duration)
-    return slots.filter(s => !bookedSlots.includes(s) && !lockedSlots.includes(s))
+
+    const toMinutes = (t: string) => {
+      const [h, m] = t.split(':').map(Number)
+      return h * 60 + m
+    }
+
+    return slots.filter(s => {
+      const candidateStart = toMinutes(s)
+      // Check against locked slots (duration-aware overlap)
+      for (const locked of lockedSlots) {
+        const lockedStart = toMinutes(locked.slot_time)
+        if (candidateStart < lockedStart + locked.duration_mins && candidateStart + duration > lockedStart) {
+          return false
+        }
+      }
+      // Check against booked slots (duration-aware overlap)
+      for (const booked of bookedSlots) {
+        const bookedStart = toMinutes(booked.slot_time)
+        if (candidateStart < bookedStart + booked.duration_mins && candidateStart + duration > bookedStart) {
+          return false
+        }
+      }
+      return true
+    })
   }
 
   const availableSlots = getAvailableSlotsForDate(selectedDate)
@@ -167,68 +196,50 @@ export function BookPage() {
     return availabilityRules.some(r => r.day_of_week === dayOfWeek)
   }
 
-  const handleSlotSelect = async (time: string) => {
-    if (!selectedDate || isLocking) return
-    const success = await lockSlot(selectedDate, time)
+  const handleSlotSelect = (time: string) => {
+    if (isLocking) return
+    setSelectedSlotTime(selectedSlotTime === time ? '' : time)
+  }
+
+  const handleSlotNext = async () => {
+    if (!selectedDate || !selectedSlotTime || isLocking) return
+    const success = await lockSlot(selectedDate, selectedSlotTime)
     if (success) {
       form.setValue('slot_date', selectedDate)
-      form.setValue('slot_time', time)
+      form.setValue('slot_time', selectedSlotTime)
+      setSelectedSlotTime('')
       setStep('details')
     }
   }
 
   const submitMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
+      setSubmitError('')
       const bookingCode = generateBookingCode()
       const pkg = packages.find(p => p.id === data.package_id)
 
-      const { data: booking, error } = await supabase
-        .from('bookings')
-        .insert({
-          booking_code: bookingCode,
-          photographer_id: photographer!.id,
-          package_id: data.package_id,
-          customer_name: data.customer_name,
-          customer_email: data.customer_email,
-          customer_phone: data.customer_phone,
-          slot_date: data.slot_date,
-          slot_time: data.slot_time,
-          pax_count: data.pax_count,
-          location: data.location,
-          special_requests: data.special_requests || null,
-          status: 'PENDING_PAYMENT',
-          payment_amount: pkg?.price || null,
-        })
-        .select()
-        .single()
+      // Atomic booking creation with DB-level conflict check
+      const booking = await createBookingWithGuard({
+        booking_code: bookingCode,
+        photographer_id: photographer!.id,
+        package_id: data.package_id,
+        customer_name: data.customer_name,
+        customer_email: data.customer_email,
+        customer_phone: data.customer_phone,
+        slot_date: data.slot_date,
+        slot_time: data.slot_time,
+        pax_count: data.pax_count,
+        location: data.location,
+        special_requests: data.special_requests || null,
+        payment_amount: pkg?.price || null,
+        affiliate_code: affiliateCode,
+      })
 
-      if (error) throw error
+      // Clear affiliate ref after successful booking
+      sessionStorage.removeItem('affiliate_ref')
 
       // Release the timeslot lock - booking is now confirmed as pending
       await releaseLock()
-
-      // Insert status history
-      await supabase.from('booking_status_history').insert({
-        booking_id: booking.id,
-        from_status: null,
-        to_status: 'PENDING_PAYMENT',
-        note: 'Booking created by customer',
-      })
-
-      // Send booking confirmation email to customer
-      sendBookingConfirmationEmail({
-        booking_code: booking.booking_code,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email,
-        slot_date: data.slot_date,
-        slot_time: data.slot_time,
-        location: data.location,
-        package_name: pkg?.name,
-        package_price: pkg?.price,
-        pax_count: data.pax_count,
-        photographer_name: photographer!.display_name,
-        photographer_slug: photographer!.slug,
-      })
 
       return booking
     },
@@ -282,14 +293,16 @@ export function BookPage() {
         <SlotStep
           packages={packages}
           selectedPackageId={selectedPackageId}
-          onPackageChange={(id) => form.setValue('package_id', id)}
+          onPackageChange={(id) => { form.setValue('package_id', id); setSelectedSlotTime('') }}
           selectedDate={selectedDate}
-          onDateSelect={setSelectedDate}
+          onDateSelect={(d) => { setSelectedDate(d); setSelectedSlotTime('') }}
           calendarMonth={calendarMonth}
           onMonthChange={setCalendarMonth}
           isDateAvailable={isDateAvailable}
           availableSlots={availableSlots}
+          selectedSlotTime={selectedSlotTime}
           onSlotSelect={handleSlotSelect}
+          onNext={handleSlotNext}
           isLocking={isLocking}
           lockError={lockError}
         />
@@ -326,7 +339,9 @@ interface SlotStepProps {
   onMonthChange: (d: Date) => void
   isDateAvailable: (d: Date) => boolean
   availableSlots: string[]
+  selectedSlotTime: string
   onSlotSelect: (t: string) => void
+  onNext: () => void
   isLocking: boolean
   lockError: string | null
 }
@@ -334,7 +349,7 @@ interface SlotStepProps {
 function SlotStep({
   packages, selectedPackageId, onPackageChange,
   selectedDate, onDateSelect, calendarMonth, onMonthChange,
-  isDateAvailable, availableSlots, onSlotSelect, isLocking, lockError
+  isDateAvailable, availableSlots, selectedSlotTime, onSlotSelect, onNext, isLocking, lockError
 }: SlotStepProps) {
   const today = startOfToday()
   const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
@@ -482,13 +497,30 @@ function SlotStep({
                   type="button"
                   onClick={() => onSlotSelect(time)}
                   disabled={isLocking}
-                  className="py-2.5 px-2 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700 transition-all active:scale-95 disabled:opacity-50"
+                  className={`py-2.5 px-2 rounded-xl border-2 text-sm font-medium transition-all active:scale-95 disabled:opacity-50 ${
+                    selectedSlotTime === time
+                      ? 'border-sky-500 bg-sky-50 text-sky-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-sky-400 hover:bg-sky-50 hover:text-sky-700'
+                  }`}
                 >
                   {formatTime(time)}
                 </button>
               ))}
             </div>
           )}
+
+          {/* Next Button */}
+          <div className="pt-4">
+            <Button
+              fullWidth
+              size="lg"
+              onClick={onNext}
+              disabled={!selectedSlotTime || isLocking}
+              loading={isLocking}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>

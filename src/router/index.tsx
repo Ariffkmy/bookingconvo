@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { Routes, Route, useSearchParams } from 'react-router-dom'
 import { PublicLayout } from '../components/layout/PublicLayout'
 import { PortalLayout } from '../components/layout/PortalLayout'
 import { AdminLayout } from '../components/layout/AdminLayout'
@@ -33,13 +33,26 @@ const PortalSettings = lazy(() => import('../features/portal/SettingsPage').then
 const AdminDashboard = lazy(() => import('../features/admin/DashboardPage').then(m => ({ default: m.AdminDashboardPage })))
 const AdminPhotographers = lazy(() => import('../features/admin/PhotographersPage').then(m => ({ default: m.AdminPhotographersPage })))
 const AdminBookings = lazy(() => import('../features/admin/BookingsPage').then(m => ({ default: m.AdminBookingsPage })))
+const AdminAffiliates = lazy(() => import('../features/admin/AffiliatesPage').then(m => ({ default: m.AdminAffiliatesPage })))
+const PortalAffiliates = lazy(() => import('../features/admin/AffiliatesPage').then(m => ({ default: m.AdminAffiliatesPage })))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>
 }
 
+function AffiliateRefCapture() {
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    const ref = searchParams.get('ref')
+    if (ref) sessionStorage.setItem('affiliate_ref', ref)
+  }, [searchParams])
+  return null
+}
+
 export function AppRouter() {
   return (
+    <>
+    <AffiliateRefCapture />
     <Routes>
       {/* Public booking routes */}
       <Route element={<PublicLayout />}>
@@ -67,6 +80,7 @@ export function AppRouter() {
           <Route path="/portal/packages" element={<Lazy><PortalPackages /></Lazy>} />
           <Route path="/portal/gallery" element={<Lazy><PortalGallery /></Lazy>} />
           <Route path="/portal/settings" element={<Lazy><PortalSettings /></Lazy>} />
+          <Route path="/portal/affiliates" element={<Lazy><PortalAffiliates /></Lazy>} />
         </Route>
       </Route>
 
@@ -76,6 +90,7 @@ export function AppRouter() {
           <Route path="/admin/dashboard" element={<Lazy><AdminDashboard /></Lazy>} />
           <Route path="/admin/photographers" element={<Lazy><AdminPhotographers /></Lazy>} />
           <Route path="/admin/bookings" element={<Lazy><AdminBookings /></Lazy>} />
+          <Route path="/admin/affiliates" element={<Lazy><AdminAffiliates /></Lazy>} />
         </Route>
       </Route>
 
@@ -90,5 +105,6 @@ export function AppRouter() {
         </div>
       } />
     </Routes>
+    </>
   )
 }

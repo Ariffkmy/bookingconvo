@@ -1,32 +1,31 @@
 import { useState } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, BookOpen, Menu, X, LogOut } from 'lucide-react'
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { LayoutDashboard, Users, BookOpen, Menu, X, LogOut, Link2, ChevronDown } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
 
-const NAV_ITEMS = [
+const FLAT_NAV = [
   { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin/photographers', icon: Users, label: 'Photographers' },
   { to: '/admin/bookings', icon: BookOpen, label: 'All Bookings' },
 ]
 
-export function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { signOut } = useAuth()
-  const navigate = useNavigate()
+const AFFILIATE_SUB = [
+  { to: '/admin/affiliates', label: 'Manage Affiliates' },
+]
 
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/portal/login')
-  }
+function NavItems({ onClose }: { onClose?: () => void }) {
+  const location = useLocation()
+  const isOnAffiliate = location.pathname.startsWith('/admin/affiliates')
+  const [affiliateOpen, setAffiliateOpen] = useState(isOnAffiliate)
 
-  const NavItems = () => (
+  return (
     <>
-      {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+      {FLAT_NAV.map(({ to, icon: Icon, label }) => (
         <NavLink
           key={to}
           to={to}
-          onClick={() => setSidebarOpen(false)}
+          onClick={onClose}
           className={({ isActive }) => cn(
             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
             isActive
@@ -38,8 +37,59 @@ export function AdminLayout() {
           {label}
         </NavLink>
       ))}
+
+      {/* Affiliates expandable group */}
+      <div>
+        <button
+          onClick={() => setAffiliateOpen(v => !v)}
+          className={cn(
+            'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
+            isOnAffiliate
+              ? 'bg-indigo-50 text-indigo-700'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          )}
+        >
+          <Link2 size={18} />
+          <span className="flex-1 text-left">Affiliates</span>
+          <ChevronDown
+            size={15}
+            className={cn('transition-transform duration-200', affiliateOpen && 'rotate-180')}
+          />
+        </button>
+
+        {affiliateOpen && (
+          <div className="ml-6 mt-0.5 space-y-0.5 border-l-2 border-indigo-100 pl-3">
+            {AFFILIATE_SUB.map(({ to, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={onClose}
+                className={({ isActive }) => cn(
+                  'flex items-center px-2 py-2 rounded-lg text-sm transition-all',
+                  isActive
+                    ? 'text-indigo-700 font-semibold bg-indigo-50'
+                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
+                )}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   )
+}
+
+export function AdminLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { signOut } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/portal/login')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -75,7 +125,7 @@ export function AdminLayout() {
               <button onClick={() => setSidebarOpen(false)}><X size={18} /></button>
             </div>
             <nav className="flex-1 p-3 space-y-0.5">
-              <NavItems />
+              <NavItems onClose={() => setSidebarOpen(false)} />
             </nav>
           </aside>
         </div>

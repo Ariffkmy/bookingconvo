@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { format, startOfMonth, endOfMonth, isToday, parseISO } from 'date-fns'
-import { Calendar, Clock, CheckCircle, TrendingUp, ArrowRight, Camera, BookOpen, DollarSign } from 'lucide-react'
+import { Calendar, Clock, CheckCircle, TrendingUp, ArrowRight, Camera } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { type Booking } from '../../types'
-import { formatTime } from '../../lib/utils'
+import { formatTime, formatCurrency } from '../../lib/utils'
 import { BookingStatusBadge } from '../../components/ui/Badge'
 import { SectionLoader } from '../../components/ui/Spinner'
 
@@ -43,10 +43,14 @@ export function DashboardPage() {
     b.slot_date >= monthStart && b.slot_date <= monthEnd && b.status !== 'CANCELLED'
   ).length
 
+  // New stats
   const totalBookings = bookings.filter(b => b.status !== 'CANCELLED').length
   const totalRevenue = bookings
-    .filter(b => ['CONFIRMED', 'COMPLETED', 'DELIVERED'].includes(b.status))
-    .reduce((sum, b) => sum + (b.payment_amount || 0), 0)
+    .filter(b => b.status !== 'CANCELLED' && b.status !== 'PENDING_PAYMENT')
+    .reduce((sum, b) => {
+      const pkg = b.package as { price: number } | undefined
+      return sum + (b.payment_amount || pkg?.price || 0)
+    }, 0)
 
   return (
     <div>
@@ -56,12 +60,18 @@ export function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 mb-6">
         <StatCard
           label="Today's Sessions"
           value={todayBookings.length}
           icon={<Camera size={18} className="text-sky-600" />}
           bg="bg-sky-50"
+        />
+        <StatCard
+          label="Total Bookings"
+          value={totalBookings}
+          icon={<TrendingUp size={18} className="text-indigo-600" />}
+          bg="bg-indigo-50"
         />
         <StatCard
           label="Awaiting Payment"
@@ -72,19 +82,13 @@ export function DashboardPage() {
         <StatCard
           label="This Month"
           value={thisMonthTotal}
-          icon={<TrendingUp size={18} className="text-green-600" />}
+          icon={<Calendar size={18} className="text-green-600" />}
           bg="bg-green-50"
         />
         <StatCard
-          label="Total Bookings"
-          value={totalBookings}
-          icon={<BookOpen size={18} className="text-indigo-600" />}
-          bg="bg-indigo-50"
-        />
-        <StatCard
           label="Total Revenue"
-          value={`RM ${totalRevenue.toLocaleString('en-MY', { minimumFractionDigits: 2 })}`}
-          icon={<DollarSign size={18} className="text-emerald-600" />}
+          value={formatCurrency(totalRevenue)}
+          icon={<TrendingUp size={18} className="text-emerald-600" />}
           bg="bg-emerald-50"
         />
       </div>
