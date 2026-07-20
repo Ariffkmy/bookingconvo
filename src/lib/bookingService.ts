@@ -75,7 +75,6 @@ interface CreateBookingParams {
   pax_count: number
   location: string
   special_requests: string | null
-  payment_amount: number | null
   affiliate_code?: string | null
 }
 
@@ -94,7 +93,11 @@ export async function createBookingWithGuard(
     throw new Error('This timeslot overlaps with an existing booking. Please choose a different time.')
   }
 
-  // Atomic creation via DB function (the real race-condition guard)
+  // Atomic creation via DB function (the real race-condition guard).
+  // affiliate_code and payment_amount are both handled server-side:
+  // affiliate_code is inserted directly (an anon follow-up UPDATE would be
+  // rejected by RLS), and payment_amount is derived from packages.price
+  // rather than trusted from the client.
   const { data, error } = await supabase.rpc('create_booking_with_conflict_check', {
     p_booking_code: params.booking_code,
     p_photographer_id: params.photographer_id,
@@ -107,7 +110,7 @@ export async function createBookingWithGuard(
     p_pax_count: params.pax_count,
     p_location: params.location || '',
     p_special_requests: params.special_requests,
-    p_payment_amount: params.payment_amount,
+    p_affiliate_code: params.affiliate_code || null,
   })
 
   if (error) {
@@ -115,14 +118,6 @@ export async function createBookingWithGuard(
       throw new Error('This timeslot was just booked by someone else. Please choose a different time.')
     }
     throw new Error(error.message || 'Failed to create booking.')
-  }
-
-  // Attach affiliate code if present (non-blocking metadata)
-  if (params.affiliate_code && data) {
-    await supabase
-      .from('bookings')
-      .update({ affiliate_code: params.affiliate_code })
-      .eq('id', data)
   }
 
   return data as Booking

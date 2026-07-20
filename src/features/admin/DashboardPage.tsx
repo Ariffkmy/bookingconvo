@@ -102,7 +102,7 @@ export function AdminDashboardPage() {
           {bookings.slice(0, 8).map(b => (
             <Link
               key={b.id}
-              to={`/admin/bookings/${b.id}`}
+              to="/admin/bookings"
               className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors"
             >
               <div className="min-w-0">

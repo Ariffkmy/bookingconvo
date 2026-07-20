@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, CalendarDays, Package, Image,
-  Settings, Menu, X, LogOut, BookOpen, Link2
+  Settings, Menu, X, LogOut, BookOpen
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/utils'
@@ -13,7 +13,6 @@ const NAV_ITEMS = [
   { to: '/portal/availability', icon: CalendarDays, label: 'Availability' },
   { to: '/portal/packages', icon: Package, label: 'Packages' },
   { to: '/portal/gallery', icon: Image, label: 'Gallery' },
-  { to: '/portal/affiliates', icon: Link2, label: 'Affiliate' },
   { to: '/portal/settings', icon: Settings, label: 'Settings' },
 ]
 

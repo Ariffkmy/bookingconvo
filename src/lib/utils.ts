@@ -104,13 +104,6 @@ export function slugify(text: string): string {
     .trim()
 }
 
-export function getStorageUrl(path: string | null | undefined): string | null {
-  if (!path) return null
-  // If it's already a full URL, return as-is
-  if (path.startsWith('http')) return path
-  return null
-}
-
 // ============================================================
 // Image compression (client-side, Canvas API — no extra deps)
 // ============================================================

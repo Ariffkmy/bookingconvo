@@ -34,7 +34,6 @@ const AdminDashboard = lazy(() => import('../features/admin/DashboardPage').then
 const AdminPhotographers = lazy(() => import('../features/admin/PhotographersPage').then(m => ({ default: m.AdminPhotographersPage })))
 const AdminBookings = lazy(() => import('../features/admin/BookingsPage').then(m => ({ default: m.AdminBookingsPage })))
 const AdminAffiliates = lazy(() => import('../features/admin/AffiliatesPage').then(m => ({ default: m.AdminAffiliatesPage })))
-const PortalAffiliates = lazy(() => import('../features/admin/AffiliatesPage').then(m => ({ default: m.AdminAffiliatesPage })))
 
 function Lazy({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>
@@ -80,7 +79,6 @@ export function AppRouter() {
           <Route path="/portal/packages" element={<Lazy><PortalPackages /></Lazy>} />
           <Route path="/portal/gallery" element={<Lazy><PortalGallery /></Lazy>} />
           <Route path="/portal/settings" element={<Lazy><PortalSettings /></Lazy>} />
-          <Route path="/portal/affiliates" element={<Lazy><PortalAffiliates /></Lazy>} />
         </Route>
       </Route>
 

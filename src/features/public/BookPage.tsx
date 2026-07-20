@@ -216,9 +216,9 @@ export function BookPage() {
     mutationFn: async (data: BookingFormData) => {
       setSubmitError('')
       const bookingCode = generateBookingCode()
-      const pkg = packages.find(p => p.id === data.package_id)
 
-      // Atomic booking creation with DB-level conflict check
+      // Atomic booking creation with DB-level conflict check.
+      // payment_amount is derived server-side from the package price.
       const booking = await createBookingWithGuard({
         booking_code: bookingCode,
         photographer_id: photographer!.id,
@@ -231,7 +231,6 @@ export function BookPage() {
         pax_count: data.pax_count,
         location: data.location,
         special_requests: data.special_requests || null,
-        payment_amount: pkg?.price || null,
         affiliate_code: affiliateCode,
       })
 
